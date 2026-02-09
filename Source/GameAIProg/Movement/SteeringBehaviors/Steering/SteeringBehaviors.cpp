@@ -41,15 +41,6 @@ SteeringOutput Arrive::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 	float speed = m_MaxSpeed;
 
 	if (distance < m_SlowRadius) {
-		// Lerp factor needs to be:
-		// 1.0f -> Distance = m_SlowRadius
-		// 0.0f -> Distance = m_StopRadius
-
-		// eg:
-		// distance = 700
-		// 700 - 300 = 400
-		// 400 / 700 = 0.57...
-
 		const float lerpFactor = (distance - m_StopRadius) / (m_SlowRadius - m_StopRadius);
 		speed = FMath::Lerp(0.0f, m_MaxSpeed, lerpFactor);
 	}
@@ -63,4 +54,12 @@ SteeringOutput Arrive::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 void Arrive::DebugRender(ASteeringAgent& Agent)
 {
 	Seek::DebugRender(Agent);
+
+	constexpr FColor SLOW_COLOR{ 0, 0, 255 };
+	constexpr FColor STOP_COLOR{ 0, 0, 150 };
+
+	UWorld* pWorld = Agent.GetWorld();
+	// Had to pass the default variables, since I needed to access the X and Y axes
+	DrawDebugCircle(pWorld, FVector{ Agent.GetPosition(), 1.0f }, m_SlowRadius, 15, SLOW_COLOR, false, (-1.0f), (uint8)0U, (0.0F), { 1, 0, 0 }, { 0, 1, 0 }, false);
+	DrawDebugCircle(pWorld, FVector{ Agent.GetPosition(), 1.0f }, m_StopRadius, 15, STOP_COLOR, false, (-1.0f), (uint8)0U, (0.0F), { 1, 0, 0 }, { 0, 1, 0 }, false);
 }
