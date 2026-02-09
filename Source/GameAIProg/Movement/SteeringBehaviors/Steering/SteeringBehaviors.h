@@ -25,4 +25,12 @@ protected:
 	FTargetData Target;
 };
 
-// Your own SteeringBehaviors should follow here...
+// Seek Behavior
+class Seek : public ISteeringBehavior
+{
+public:
+	Seek() = default;
+	virtual ~Seek() override = default;
+
+	virtual SteeringOutput CalculateSteering(float DeltaT, ASteeringAgent& agent) override;
+};
