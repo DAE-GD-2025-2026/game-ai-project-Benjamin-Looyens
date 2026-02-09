@@ -44,4 +44,18 @@ public:
 
 	virtual SteeringOutput CalculateSteering(float DeltaT, ASteeringAgent& Agent) override;
 };
+
+// Arrive Behavior
+class Arrive : public Seek
+{
+public:
+	Arrive() = default;
+	virtual ~Arrive() override = default;
+
+	virtual SteeringOutput CalculateSteering(float DeltaT, ASteeringAgent& Agent) override;
+
+protected:
+	float m_MaxSpeed = 600.0f; // Default ACharacter speed
+	float m_SlowRadius = 1000.0f;
+	float m_StopRadius = 150.0f;
 };
