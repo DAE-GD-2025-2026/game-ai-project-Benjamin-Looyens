@@ -8,22 +8,33 @@ SteeringOutput Seek::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 
 	steering.LinearVelocity = Target.Position - Agent.GetPosition(); // No need to normalize, as the AddMovementInput() fuction within the SteeringAgent::Tick() will normalize
 
-	// TODO : Add Debug Render
-
 	return steering;
 }
 
+void Seek::DebugRender(ASteeringAgent& Agent)
+{
+	constexpr FColor TO_TARGET_COLOR{ 255, 0, 0 };
+
+	UWorld* pWorld = Agent.GetWorld();
+	DrawDebugLine(pWorld, FVector{ Agent.GetPosition(), 1.0f }, FVector{ Target.Position, 1.0f }, TO_TARGET_COLOR); // TODO : Show direction, rather than entire line towards target
+}
+
+// Flee Behavior
 SteeringOutput Flee::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 {
 	SteeringOutput steering = Seek::CalculateSteering(DeltaT, Agent);
 
 	steering.LinearVelocity = -steering.LinearVelocity;
 
-	// TODO : Override debug render from Seek?
-
 	return steering;
 }
 
+void Flee::DebugRender(ASteeringAgent& Agent)
+{
+	// TODO : Override debug render from Seek
+}
+
+// Arrive Behavior
 SteeringOutput Arrive::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 {
 	const float distance = FVector2D::Distance(Agent.GetPosition(), Target.Position);
@@ -47,4 +58,9 @@ SteeringOutput Arrive::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 	Agent.SetMaxLinearSpeed(speed);
 
 	return Seek::CalculateSteering(DeltaT, Agent); // Same exact movement (direction) behavior as seek
+}
+
+void Arrive::DebugRender(ASteeringAgent& Agent)
+{
+	Seek::DebugRender(Agent);
 }

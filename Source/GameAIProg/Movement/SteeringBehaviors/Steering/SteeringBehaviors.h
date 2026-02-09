@@ -13,7 +13,8 @@ public:
 	virtual ~ISteeringBehavior() = default;
 
 	// Override to implement your own behavior
-	virtual SteeringOutput CalculateSteering(float DeltaT, ASteeringAgent & Agent) = 0;
+	virtual SteeringOutput CalculateSteering(float DeltaT, ASteeringAgent& Agent) = 0;
+	virtual void DebugRender(ASteeringAgent& Agent) {};
 
 	void SetTarget(const FTargetData& NewTarget) { Target = NewTarget; }
 	
@@ -33,6 +34,7 @@ public:
 	virtual ~Seek() override = default;
 
 	virtual SteeringOutput CalculateSteering(float DeltaT, ASteeringAgent& Agent) override;
+	virtual void DebugRender(ASteeringAgent& Agent) override;
 };
 
 // Flee Behavior
@@ -43,6 +45,7 @@ public:
 	virtual ~Flee() override = default;
 
 	virtual SteeringOutput CalculateSteering(float DeltaT, ASteeringAgent& Agent) override;
+	virtual void DebugRender(ASteeringAgent& Agent) override;
 };
 
 // Arrive Behavior
@@ -53,6 +56,7 @@ public:
 	virtual ~Arrive() override = default;
 
 	virtual SteeringOutput CalculateSteering(float DeltaT, ASteeringAgent& Agent) override;
+	virtual void DebugRender(ASteeringAgent& Agent) override;
 
 protected:
 	float m_MaxSpeed = 600.0f; // Default ACharacter speed
