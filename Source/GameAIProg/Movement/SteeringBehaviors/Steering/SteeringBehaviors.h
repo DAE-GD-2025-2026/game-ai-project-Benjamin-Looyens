@@ -14,7 +14,7 @@ public:
 
 	// Override to implement your own behavior
 	virtual SteeringOutput CalculateSteering(float DeltaT, ASteeringAgent& Agent) = 0;
-	virtual void DebugRender(ASteeringAgent& Agent) {};
+	virtual void DebugRender(ASteeringAgent& Agent);
 
 	void SetTarget(const FTargetData& NewTarget) { Target = NewTarget; }
 	

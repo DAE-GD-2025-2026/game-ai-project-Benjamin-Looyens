@@ -1,6 +1,18 @@
 #include "SteeringBehaviors.h"
 #include "GameAIProg/Movement/SteeringBehaviors/SteeringAgent.h"
 
+// Base Debug Render
+void ISteeringBehavior::DebugRender(ASteeringAgent& Agent)
+{
+	constexpr FColor CUR_VELOCITY_COLOR{ 0, 180, 255 };
+
+	UWorld* pWorld = Agent.GetWorld();
+
+	// Agent Velocity
+	FVector2D curVel = Agent.GetLinearVelocity();
+	DrawDebugLine(pWorld, FVector{ Agent.GetPosition(), 1.0f }, FVector{ Agent.GetPosition() + curVel, 1.0f }, CUR_VELOCITY_COLOR);
+}
+
 // Seek Behavior
 SteeringOutput Seek::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 {
@@ -13,19 +25,15 @@ SteeringOutput Seek::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 
 void Seek::DebugRender(ASteeringAgent& Agent)
 {
-	constexpr FColor TO_TARGET_COLOR{ 255, 0, 0 };
-	constexpr FColor CUR_VELOCITY_COLOR{ 0, 180, 255 };
+	ISteeringBehavior::DebugRender(Agent);
+	
 
-	const FVector2D& agentPos = Agent.GetPosition();
+	constexpr FColor TO_TARGET_COLOR{ 255, 0, 0 };
 
 	UWorld* pWorld = Agent.GetWorld();
 
 	// Line Towards Target
-	DrawDebugLine(pWorld, FVector{ agentPos, 1.0f }, FVector{ Target.Position, 1.0f }, TO_TARGET_COLOR);
-
-	// Agent Velocity
-	FVector2D curVel = Agent.GetLinearVelocity();
-	DrawDebugLine(pWorld, FVector{ agentPos, 1.0f }, FVector{ agentPos + curVel, 1.0f}, CUR_VELOCITY_COLOR);
+	DrawDebugLine(pWorld, FVector{ Agent.GetPosition(), 1.0f }, FVector{ Target.Position, 1.0f }, TO_TARGET_COLOR);
 }
 
 // Flee Behavior
@@ -120,4 +128,5 @@ SteeringOutput Pursuit::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 
 void Pursuit::DebugRender(ASteeringAgent& Agent)
 {
+	ISteeringBehavior::DebugRender(Agent);
 }
