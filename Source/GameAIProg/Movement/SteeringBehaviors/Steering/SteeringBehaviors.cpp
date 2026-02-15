@@ -14,13 +14,18 @@ SteeringOutput Seek::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 void Seek::DebugRender(ASteeringAgent& Agent)
 {
 	constexpr FColor TO_TARGET_COLOR{ 255, 0, 0 };
+	constexpr FColor CUR_VELOCITY_COLOR{ 0, 180, 255 };
+
+	const FVector2D& agentPos = Agent.GetPosition();
 
 	UWorld* pWorld = Agent.GetWorld();
 
 	// Line Towards Target
-	DrawDebugLine(pWorld, FVector{ Agent.GetPosition(), 1.0f }, FVector{ Target.Position, 1.0f }, TO_TARGET_COLOR);
+	DrawDebugLine(pWorld, FVector{ agentPos, 1.0f }, FVector{ Target.Position, 1.0f }, TO_TARGET_COLOR);
 
-	// TODO : Show Exact Velocity Line
+	// Agent Velocity
+	FVector2D curVel = Agent.GetLinearVelocity();
+	DrawDebugLine(pWorld, FVector{ agentPos, 1.0f }, FVector{ agentPos + curVel, 1.0f}, CUR_VELOCITY_COLOR);
 }
 
 // Flee Behavior
