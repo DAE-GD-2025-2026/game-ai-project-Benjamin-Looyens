@@ -33,7 +33,7 @@ void ASteeringAgent::Tick(float DeltaTime)
 
 		// TODO : Angular Velocity
 
-		SteeringBehavior->DebugRender(*this);
+		if (bIsDebugRenderingEnabled) SteeringBehavior->DebugRender(*this);
 	}
 }
 
