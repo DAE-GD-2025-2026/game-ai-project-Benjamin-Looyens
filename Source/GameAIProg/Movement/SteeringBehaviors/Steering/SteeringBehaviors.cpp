@@ -85,6 +85,7 @@ void Arrive::DebugRender(ASteeringAgent& Agent)
 	DrawDebugCircle(pWorld, FVector{ Agent.GetPosition(), 1.0f }, m_StopRadius, 15, STOP_COLOR, false, (-1.0f), (uint8)0U, (0.0F), { 1, 0, 0 }, { 0, 1, 0 }, false);
 }
 
+// Face Behavior
 SteeringOutput Face::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 {
 	SteeringOutput steering{};
@@ -102,4 +103,21 @@ SteeringOutput Face::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 void Face::DebugRender(ASteeringAgent& Agent)
 {
 	// TODO : Face Debug Render
+}
+
+// Pursuit Behavior
+SteeringOutput Pursuit::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
+{
+	SteeringOutput steering{};
+
+	const float estimatedTime = FVector2D::Distance(Agent.GetPosition(), Target.Position) / Agent.GetMaxLinearSpeed();
+	const FVector2D predictedPos = Target.Position + (Target.LinearVelocity * estimatedTime);
+
+	steering.LinearVelocity = predictedPos - Agent.GetPosition();
+
+	return steering;
+}
+
+void Pursuit::DebugRender(ASteeringAgent& Agent)
+{
 }

@@ -74,3 +74,14 @@ public:
 	virtual SteeringOutput CalculateSteering(float DeltaT, ASteeringAgent& Agent) override;
 	virtual void DebugRender(ASteeringAgent& Agent) override;
 };
+
+// Pursuit Behavior
+class Pursuit : public ISteeringBehavior
+{
+public:
+	Pursuit() = default;
+	virtual ~Pursuit() override = default;
+
+	virtual SteeringOutput CalculateSteering(float DeltaT, ASteeringAgent& Agent) override;
+	virtual void DebugRender(ASteeringAgent& Agent) override;
+};
