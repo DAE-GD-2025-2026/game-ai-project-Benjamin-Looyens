@@ -16,7 +16,11 @@ void Seek::DebugRender(ASteeringAgent& Agent)
 	constexpr FColor TO_TARGET_COLOR{ 255, 0, 0 };
 
 	UWorld* pWorld = Agent.GetWorld();
-	DrawDebugLine(pWorld, FVector{ Agent.GetPosition(), 1.0f }, FVector{ Target.Position, 1.0f }, TO_TARGET_COLOR); // TODO : Show direction, rather than entire line towards target
+
+	// Line Towards Target
+	DrawDebugLine(pWorld, FVector{ Agent.GetPosition(), 1.0f }, FVector{ Target.Position, 1.0f }, TO_TARGET_COLOR);
+
+	// TODO : Show Exact Velocity Line
 }
 
 // Flee Behavior
@@ -32,6 +36,18 @@ SteeringOutput Flee::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 void Flee::DebugRender(ASteeringAgent& Agent)
 {
 	// TODO : Override debug render from Seek
+	Seek::DebugRender(Agent);
+
+	constexpr FColor AWAY_FROM_TARGET_COLOR{ 0, 255, 0 };
+
+	const FVector2D& agentPos = Agent.GetPosition();
+	const FVector2D toTarget = Target.Position - agentPos;
+	FVector2D direction = -toTarget;
+	direction.Normalize();
+	direction *= Agent.GetMaxLinearSpeed();
+
+	UWorld* pWorld = Agent.GetWorld();
+	DrawDebugLine(pWorld, FVector{ agentPos, 1.0f }, FVector{ agentPos, 1.0f } + FVector{ direction, 0.0f}, AWAY_FROM_TARGET_COLOR);
 }
 
 // Arrive Behavior
