@@ -138,6 +138,7 @@ void Pursuit::DebugRender(ASteeringAgent& Agent)
 	DrawDebugPoint(pWorld, FVector{ m_PredictedPos, 1.0f }, PREDICTED_POS_POINT_SIZE, PREDICTED_POS_COLOR);
 }
 
+// Evade Behavior
 SteeringOutput Evade::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 {
 	SteeringOutput steering = Pursuit::CalculateSteering(DeltaT, Agent);
@@ -145,4 +146,41 @@ SteeringOutput Evade::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 	steering.LinearVelocity = -steering.LinearVelocity;
 
 	return steering;
+}
+
+// Wander Behavior
+SteeringOutput Wander::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
+{
+	SteeringOutput steering{};
+
+	const float angleChange = std::clamp((FMath::FRand() * 2.0f) - 1.0f, -m_MaxChange, m_MaxChange);
+	m_CurrentAngle += angleChange;
+
+	const FVector forward = Agent.GetActorForwardVector() * m_OffsetDistance;
+
+	m_WanderPos = { FMath::Sin(m_CurrentAngle), FMath::Cos(m_CurrentAngle) };
+	m_WanderPos *= m_Radius;
+	m_WanderPos += Agent.GetPosition() + FVector2D{ forward.X, forward.Y };
+
+	steering.LinearVelocity = m_WanderPos - Agent.GetPosition();
+
+	return steering;
+}
+
+void Wander::DebugRender(ASteeringAgent& Agent)
+{
+	ISteeringBehavior::DebugRender(Agent);
+
+	constexpr float WANDER_POINT_SIZE = 10.0f;
+	constexpr FColor WANDER_POINT_COLOR{ 0, 0, 200 };
+	constexpr FColor WANDER_CIRCLE_COLOR{ 0, 0, 100 };
+
+	UWorld* pWorld = Agent.GetWorld();
+
+	// Circle
+	DrawDebugCircle(pWorld, FVector{ Agent.GetPosition(), 1.0f } + Agent.GetActorForwardVector() * m_OffsetDistance,
+					m_Radius, 15, WANDER_CIRCLE_COLOR, false, (-1.0f), (uint8)0U, (0.0F), { 1, 0, 0 }, { 0, 1, 0 }, false);
+
+	// Point on Circle
+	DrawDebugPoint(pWorld, FVector{ m_WanderPos, 1.1f }, WANDER_POINT_SIZE, WANDER_POINT_COLOR); // 1.1f to ensure it is above the radius circle
 }

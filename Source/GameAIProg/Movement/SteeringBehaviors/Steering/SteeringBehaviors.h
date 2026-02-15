@@ -99,3 +99,23 @@ public:
 	virtual SteeringOutput CalculateSteering(float DeltaT, ASteeringAgent& Agent) override;
 	// TODO : Perhaps store a color inside pursuit as protected, and when creating evade, change that color so that in the debug render its not the same
 };
+
+// Wander Behavior
+class Wander : public ISteeringBehavior
+{
+public:
+	Wander() = default;
+	virtual ~Wander() override = default;
+
+	virtual SteeringOutput CalculateSteering(float DeltaT, ASteeringAgent& Agent) override;
+	virtual void DebugRender(ASteeringAgent& Agent) override;
+
+protected:
+	float m_OffsetDistance = 200.0f;
+	float m_Radius = 100.0f;
+	float m_MaxChange = FMath::DegreesToRadians(15);
+	float m_CurrentAngle = 0.0f;
+
+	// Debug Render
+	FVector2D m_WanderPos = FVector2D::UnitVector;
+};
