@@ -88,3 +88,14 @@ public:
 private:
 	FVector2D m_PredictedPos = FVector2D::UnitVector;
 };
+
+// Evade Behavior
+class Evade : public Pursuit
+{
+public:
+	Evade() = default;
+	virtual ~Evade() override = default;
+
+	virtual SteeringOutput CalculateSteering(float DeltaT, ASteeringAgent& Agent) override;
+	// TODO : Perhaps store a color inside pursuit as protected, and when creating evade, change that color so that in the debug render its not the same
+};

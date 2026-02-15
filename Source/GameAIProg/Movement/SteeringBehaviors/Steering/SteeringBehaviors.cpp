@@ -137,3 +137,12 @@ void Pursuit::DebugRender(ASteeringAgent& Agent)
 
 	DrawDebugPoint(pWorld, FVector{ m_PredictedPos, 1.0f }, PREDICTED_POS_POINT_SIZE, PREDICTED_POS_COLOR);
 }
+
+SteeringOutput Evade::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
+{
+	SteeringOutput steering = Pursuit::CalculateSteering(DeltaT, Agent);
+
+	steering.LinearVelocity = -steering.LinearVelocity;
+
+	return steering;
+}
