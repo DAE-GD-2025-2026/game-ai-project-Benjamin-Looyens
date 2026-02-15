@@ -63,3 +63,14 @@ protected:
 	float m_SlowRadius = 1000.0f;
 	float m_StopRadius = 150.0f;
 };
+
+// Face Behavior
+class Face : public ISteeringBehavior
+{
+public:
+	Face() = default;
+	virtual ~Face() override = default;
+
+	virtual SteeringOutput CalculateSteering(float DeltaT, ASteeringAgent& Agent) override;
+	virtual void DebugRender(ASteeringAgent& Agent) override;
+};

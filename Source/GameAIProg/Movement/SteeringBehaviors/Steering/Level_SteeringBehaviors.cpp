@@ -114,7 +114,7 @@ void ALevel_SteeringBehaviors::Tick(float DeltaTime)
 			ImGui::PushItemWidth(100);
 
 			// Add the names of your steering behaviors
-			if (ImGui::Combo("", &a.SelectedBehavior, "Seek\0Wander\0Flee\0Arrive\0Evade\0Pursuit", 4))
+			if (ImGui::Combo("", &a.SelectedBehavior, "Seek\0Wander\0Flee\0Arrive\0Evade\0Pursuit\0Face", 4))
 			{
 				bBehaviourModified = true;
 			}
@@ -223,6 +223,8 @@ void ALevel_SteeringBehaviors::SetAgentBehavior(ImGui_Agent& Agent)
 {
 	Agent.Behavior.reset();
 	
+	bool autoOrient = true;
+
 	switch (static_cast<BehaviorTypes>(Agent.SelectedBehavior))
 	{
 	case BehaviorTypes::Seek:
@@ -234,10 +236,15 @@ void ALevel_SteeringBehaviors::SetAgentBehavior(ImGui_Agent& Agent)
 	case BehaviorTypes::Arrive:
 		Agent.Behavior = std::make_unique<Arrive>();
 		break;
+	case BehaviorTypes::Face:
+		Agent.Behavior = std::make_unique<Face>();
+		autoOrient = false;
+		break;
 	default:
 		assert(false); // Incorrect Agent Behavior gotten during SetAgentBehavior()	
 	}
 
+	Agent.Agent->SetIsAutoOrienting(autoOrient);
 	UpdateTarget(Agent);
 	
 	Agent.Agent->SetSteeringBehavior(Agent.Behavior.get());

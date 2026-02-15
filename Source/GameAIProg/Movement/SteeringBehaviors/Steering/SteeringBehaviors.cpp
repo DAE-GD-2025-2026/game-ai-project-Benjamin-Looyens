@@ -84,3 +84,22 @@ void Arrive::DebugRender(ASteeringAgent& Agent)
 	DrawDebugCircle(pWorld, FVector{ Agent.GetPosition(), 1.0f }, m_SlowRadius, 15, SLOW_COLOR, false, (-1.0f), (uint8)0U, (0.0F), { 1, 0, 0 }, { 0, 1, 0 }, false);
 	DrawDebugCircle(pWorld, FVector{ Agent.GetPosition(), 1.0f }, m_StopRadius, 15, STOP_COLOR, false, (-1.0f), (uint8)0U, (0.0F), { 1, 0, 0 }, { 0, 1, 0 }, false);
 }
+
+SteeringOutput Face::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
+{
+	SteeringOutput steering{};
+
+	const float curRot = Agent.GetRotation();
+	const float goalRot = FMath::Atan2(Target.Position.Y - Agent.GetPosition().Y, Target.Position.X - Agent.GetPosition().X);
+	const float maxRot = Agent.GetMaxAngularSpeed() * DeltaT;
+	const float difRot = FMath::FindDeltaAngleDegrees(curRot, FMath::RadiansToDegrees(goalRot)); // AddActorLocalRotation expects degrees
+
+	steering.AngularVelocity = FMath::Clamp(difRot, -maxRot, maxRot);
+
+	return steering;
+}
+
+void Face::DebugRender(ASteeringAgent& Agent)
+{
+	// TODO : Face Debug Render
+}
