@@ -119,9 +119,9 @@ SteeringOutput Pursuit::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 	SteeringOutput steering{};
 
 	const float estimatedTime = FVector2D::Distance(Agent.GetPosition(), Target.Position) / Agent.GetMaxLinearSpeed();
-	const FVector2D predictedPos = Target.Position + (Target.LinearVelocity * estimatedTime);
+	m_PredictedPos = Target.Position + (Target.LinearVelocity * estimatedTime); // Store in class for Debug Render
 
-	steering.LinearVelocity = predictedPos - Agent.GetPosition();
+	steering.LinearVelocity = m_PredictedPos - Agent.GetPosition();
 
 	return steering;
 }
@@ -129,4 +129,11 @@ SteeringOutput Pursuit::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 void Pursuit::DebugRender(ASteeringAgent& Agent)
 {
 	ISteeringBehavior::DebugRender(Agent);
+
+	constexpr float PREDICTED_POS_POINT_SIZE = 10.0f;
+	constexpr FColor PREDICTED_POS_COLOR{ 100, 100, 200 };
+
+	UWorld* pWorld = Agent.GetWorld();
+
+	DrawDebugPoint(pWorld, FVector{ m_PredictedPos, 1.0f }, PREDICTED_POS_POINT_SIZE, PREDICTED_POS_COLOR);
 }
