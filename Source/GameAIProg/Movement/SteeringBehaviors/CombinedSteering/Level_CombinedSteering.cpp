@@ -22,8 +22,8 @@ void ALevel_CombinedSteering::BeginPlay()
 	m_pBlendedActor = GetWorld()->SpawnActor<ASteeringAgent>(SteeringAgentClass, FVector{ -100, 0, 90 }, FRotator::ZeroRotator);
 	if (IsValid(m_pBlendedActor)) {
 		std::vector<BlendedSteering::WeightedBehavior> weightedBehaviors {
-			BlendedSteering::WeightedBehavior{ m_pWander.get(), 0.7f },
-			BlendedSteering::WeightedBehavior{ m_pSeek.get(), 0.3f }
+			BlendedSteering::WeightedBehavior{ m_pWander.get(), 0.5f },
+			BlendedSteering::WeightedBehavior{ m_pSeek.get(), 0.5f }
 		};
 
 		m_pBlendedSteering = std::make_unique<BlendedSteering>(weightedBehaviors);
