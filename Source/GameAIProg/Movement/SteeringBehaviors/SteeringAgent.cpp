@@ -47,3 +47,13 @@ void ASteeringAgent::SetSteeringBehavior(ISteeringBehavior* NewSteeringBehavior)
 	SteeringBehavior = NewSteeringBehavior;
 }
 
+FTargetData ASteeringAgent::CreateTarget() const
+{
+	return FTargetData{
+		GetPosition(),
+		GetRotation(),
+		GetLinearVelocity(),
+		GetAngularVelocity()
+	};
+}
+
