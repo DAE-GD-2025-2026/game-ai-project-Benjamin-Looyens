@@ -31,8 +31,10 @@ void ALevel_CombinedSteering::BeginPlay()
 		m_pBlendedActor->SetSteeringBehavior(m_pBlendedSteering.get());
 		m_pBlendedActor->SetDebugRenderingEnabled(true);
 	}
-	
-	//m_pPriorityActor = GetWorld()->SpawnActor<ASteeringAgent>(SteeringAgentClass, FVector{ 100, 0, 90 }, FRotator::ZeroRotator);
+
+	m_pPriorityActor = GetWorld()->SpawnActor<ASteeringAgent>(SteeringAgentClass, FVector{ 100, 0, 90 }, FRotator::ZeroRotator);
+	if (IsValid(m_pPriorityActor)) {
+	}
 }
 
 void ALevel_CombinedSteering::BeginDestroy()
@@ -117,7 +119,7 @@ void ALevel_CombinedSteering::Tick(float DeltaTime)
 	// Combined Steering Update
 	m_pBlendedSteering->SetTargetAllBlends(MouseTarget);
 
-	// Priority Steering update
+	// Priority Steering Update
 	// TODO: implement Make sure to also evade the wanderer
-	//m_pPrioritySteering;
+	m_pPrioritySteering->SetTargetAllPriorities(m_pBlendedActor->CreateTarget());
 }

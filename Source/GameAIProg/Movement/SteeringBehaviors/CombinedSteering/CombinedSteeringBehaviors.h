@@ -51,6 +51,8 @@ public:
 	SteeringOutput CalculateSteering(float DeltaT, ASteeringAgent& Agent) override;
 	virtual void DebugRender(ASteeringAgent& Agent) override;
 
+	void SetTargetAllPriorities(const FTargetData& target);
+
 private:
 	std::vector<ISteeringBehavior*> m_PriorityBehaviors = {};
 

@@ -84,3 +84,12 @@ SteeringOutput PrioritySteering::CalculateSteering(float DeltaT, ASteeringAgent&
 void PrioritySteering::DebugRender(ASteeringAgent& Agent)
 {
 }
+
+void PrioritySteering::SetTargetAllPriorities(const FTargetData& target)
+{
+	SetTarget(target);
+
+	for (const auto& pBehavior : m_PriorityBehaviors) {
+		pBehavior->SetTarget(target);
+	}
+}
