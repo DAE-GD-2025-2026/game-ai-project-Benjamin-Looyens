@@ -3,6 +3,7 @@
 #include <algorithm>
 #include "../SteeringAgent.h"
 #include <cassert>
+#include <numeric>
 
 BlendedSteering::BlendedSteering(const std::vector<WeightedBehavior>& WeightedBehaviors)
 	:WeightedBehaviors(WeightedBehaviors)
@@ -12,21 +13,28 @@ BlendedSteering::BlendedSteering(const std::vector<WeightedBehavior>& WeightedBe
 //BLENDED STEERING
 SteeringOutput BlendedSteering::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 {
-	SteeringOutput BlendedSteering = {};
-	// TODO: Calculate the weighted average steeringbehavior
+	SteeringOutput steering{};
 
-	if (WeightedBehaviors.size() > 1) {
-		return WeightedBehaviors[1].pBehavior->CalculateSteering(DeltaT, Agent);
+	const float totalWeight = std::accumulate(begin(WeightedBehaviors), end(WeightedBehaviors), 0.0f, 
+							[](float prev, const WeightedBehavior& behavior) { return prev + behavior.Weight; });
+	if (totalWeight <= 0.0f) return steering;
+
+	for (const auto& behavior : WeightedBehaviors) {
+		SteeringOutput weighted = (behavior.Weight / totalWeight) * behavior.pBehavior->CalculateSteering(DeltaT, Agent);
+		//SteeringOutput weighted = behavior.Weight * behavior.pBehavior->CalculateSteering(DeltaT, Agent);
+
+		steering.LinearVelocity += weighted.LinearVelocity;
+		steering.AngularVelocity += weighted.AngularVelocity;
+		steering.IsValid = steering.IsValid && weighted.IsValid;
 	}
 
-	return BlendedSteering;
+	return steering;
 }
 
 void BlendedSteering::DebugRender(ASteeringAgent& Agent)
 {
-	// TODO: All Behaviors Debug Render
-	if (WeightedBehaviors.size() > 1) {
-		WeightedBehaviors[1].pBehavior->DebugRender(Agent);
+	for (const auto& behavior : WeightedBehaviors) {
+		behavior.pBehavior->DebugRender(Agent);
 	}
 }
 
