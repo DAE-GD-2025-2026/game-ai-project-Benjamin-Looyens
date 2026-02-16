@@ -30,7 +30,7 @@ void ALevel_CombinedSteering::BeginPlay()
 		m_pBlendedSteering->SetTarget(MouseTarget);
 
 		m_pBlendedActor->SetSteeringBehavior(m_pBlendedSteering.get());
-		m_pBlendedActor->SetDebugRenderingEnabled(true);
+		m_pBlendedActor->SetDebugRenderingEnabled(CanDebugRender);
 	}
 
 	m_pPriorityActor = GetWorld()->SpawnActor<ASteeringAgent>(SteeringAgentClass, FVector{ 100, 0, 90 }, FRotator::ZeroRotator);
@@ -43,6 +43,7 @@ void ALevel_CombinedSteering::BeginPlay()
 		m_pPrioritySteering = std::make_unique<PrioritySteering>(pPrioritizedBehaviors);
 
 		m_pPriorityActor->SetSteeringBehavior(m_pPrioritySteering.get());
+		m_pPriorityActor->SetDebugRenderingEnabled(CanDebugRender);
 	}
 }
 
@@ -96,7 +97,8 @@ void ALevel_CombinedSteering::Tick(float DeltaTime)
 	
 		if (ImGui::Checkbox("Debug Rendering", &CanDebugRender))
 		{
-   // TODO: Handle the debug rendering of your agents here :)
+			m_pBlendedActor->SetDebugRenderingEnabled(CanDebugRender);
+			m_pPriorityActor->SetDebugRenderingEnabled(CanDebugRender);
 		}
 		ImGui::Checkbox("Trim World", &TrimWorld->bShouldTrimWorld);
 		if (TrimWorld->bShouldTrimWorld)
