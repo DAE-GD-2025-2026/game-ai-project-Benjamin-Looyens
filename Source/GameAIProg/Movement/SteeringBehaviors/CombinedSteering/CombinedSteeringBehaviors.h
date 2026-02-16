@@ -25,7 +25,7 @@ public:
 	virtual SteeringOutput CalculateSteering(float DeltaT, ASteeringAgent& Agent) override;
 	virtual void DebugRender(ASteeringAgent& Agent) override;
 
-	void SetTargetAllBlends(FTargetData& target);
+	void SetTargetAllBlends(const FTargetData& target);
 
 	float* GetWeight(ISteeringBehavior* const SteeringBehavior);
 	

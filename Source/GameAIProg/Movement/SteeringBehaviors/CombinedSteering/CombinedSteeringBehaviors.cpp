@@ -20,7 +20,7 @@ SteeringOutput BlendedSteering::CalculateSteering(float DeltaT, ASteeringAgent& 
 	if (totalWeight <= 0.0f) return steering;
 
 	for (const auto& behavior : WeightedBehaviors) {
-		SteeringOutput weighted = (behavior.Weight / totalWeight) * behavior.pBehavior->CalculateSteering(DeltaT, Agent);
+		const SteeringOutput weighted = (behavior.Weight / totalWeight) * behavior.pBehavior->CalculateSteering(DeltaT, Agent);
 		//SteeringOutput weighted = behavior.Weight * behavior.pBehavior->CalculateSteering(DeltaT, Agent);
 
 		steering.LinearVelocity += weighted.LinearVelocity;
@@ -38,7 +38,7 @@ void BlendedSteering::DebugRender(ASteeringAgent& Agent)
 	}
 }
 
-void BlendedSteering::SetTargetAllBlends(FTargetData& target)
+void BlendedSteering::SetTargetAllBlends(const FTargetData& target)
 {
 	SetTarget(target);
 
