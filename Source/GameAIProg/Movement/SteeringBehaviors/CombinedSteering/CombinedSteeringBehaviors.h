@@ -56,5 +56,7 @@ public:
 private:
 	std::vector<ISteeringBehavior*> m_PriorityBehaviors = {};
 
+	uint8_t m_LatestValid = 0;
+
 	// using ISteeringBehavior::SetTarget; // made private because targets need to be set on the individual behaviors, not the combined behavior
 };

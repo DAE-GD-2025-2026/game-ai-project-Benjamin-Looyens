@@ -69,10 +69,12 @@ SteeringOutput PrioritySteering::CalculateSteering(float DeltaT, ASteeringAgent&
 {
 	SteeringOutput steering{};
 	
+	m_LatestValid = -1;
 	for (ISteeringBehavior* const pBehavior : m_PriorityBehaviors)
 	{
 		steering = pBehavior->CalculateSteering(DeltaT, Agent);
 		
+		m_LatestValid++;
 
 		if (steering.IsValid) break;
 	}
@@ -85,6 +87,10 @@ void PrioritySteering::DebugRender(ASteeringAgent& Agent)
 {
 	// TODO : Render only the valid steering
 	// Potentially could have a uint in the prioity steering that stores the index for latest valid behavior
+
+	if (m_LatestValid > -1 && m_LatestValid < m_PriorityBehaviors.size()) {
+		m_PriorityBehaviors[m_LatestValid]->DebugRender(Agent);
+	}
 }
 
 void PrioritySteering::SetTargetAllPriorities(const FTargetData& target)
