@@ -26,6 +26,7 @@ void ALevel_CombinedSteering::BeginPlay()
 		};
 
 		m_pBlendedSteering = std::make_unique<BlendedSteering>(weightedBehaviors);
+		m_pBlendedSteering->SetTarget(MouseTarget);
 
 		m_pBlendedActor->SetSteeringBehavior(m_pBlendedSteering.get());
 		m_pBlendedActor->SetDebugRenderingEnabled(true);
@@ -116,6 +117,9 @@ void ALevel_CombinedSteering::Tick(float DeltaTime)
 #pragma endregion
 	
 	// Combined Steering Update
- // TODO: implement handling mouse click input for seek
- // TODO: implement Make sure to also evade the wanderer
+	m_pBlendedSteering->SetTargetAllBlends(MouseTarget);
+
+	// Priority Steering update
+	// TODO: implement Make sure to also evade the wanderer
+	//m_pPrioritySteering;
 }

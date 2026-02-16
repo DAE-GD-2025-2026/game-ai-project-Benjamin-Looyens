@@ -1,6 +1,9 @@
 #include "SteeringBehaviors.h"
 #include "GameAIProg/Movement/SteeringBehaviors/SteeringAgent.h"
 
+// General
+// TODO : For the Debug Rendering, use the Agent Z rather than 1.0f, as when they go onto the cubes on the side the debug render goes under it
+
 // Base Debug Render
 void ISteeringBehavior::DebugRender(ASteeringAgent& Agent)
 {

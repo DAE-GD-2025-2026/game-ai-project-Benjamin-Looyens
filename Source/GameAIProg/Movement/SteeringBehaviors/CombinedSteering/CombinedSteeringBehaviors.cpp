@@ -15,8 +15,8 @@ SteeringOutput BlendedSteering::CalculateSteering(float DeltaT, ASteeringAgent& 
 	SteeringOutput BlendedSteering = {};
 	// TODO: Calculate the weighted average steeringbehavior
 
-	if (WeightedBehaviors.size() > 0) {
-		return WeightedBehaviors[0].pBehavior->CalculateSteering(DeltaT, Agent);
+	if (WeightedBehaviors.size() > 1) {
+		return WeightedBehaviors[1].pBehavior->CalculateSteering(DeltaT, Agent);
 	}
 
 	return BlendedSteering;
@@ -25,8 +25,17 @@ SteeringOutput BlendedSteering::CalculateSteering(float DeltaT, ASteeringAgent& 
 void BlendedSteering::DebugRender(ASteeringAgent& Agent)
 {
 	// TODO: All Behaviors Debug Render
-	if (WeightedBehaviors.size() > 0) {
-		WeightedBehaviors[0].pBehavior->DebugRender(Agent);
+	if (WeightedBehaviors.size() > 1) {
+		WeightedBehaviors[1].pBehavior->DebugRender(Agent);
+	}
+}
+
+void BlendedSteering::SetTargetAllBlends(FTargetData& target)
+{
+	SetTarget(target);
+
+	for (auto& behavior : WeightedBehaviors) {
+		behavior.pBehavior->SetTarget(target);
 	}
 }
 

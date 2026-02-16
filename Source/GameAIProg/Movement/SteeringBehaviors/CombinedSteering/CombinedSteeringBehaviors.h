@@ -25,6 +25,8 @@ public:
 	virtual SteeringOutput CalculateSteering(float DeltaT, ASteeringAgent& Agent) override;
 	virtual void DebugRender(ASteeringAgent& Agent) override;
 
+	void SetTargetAllBlends(FTargetData& target);
+
 	float* GetWeight(ISteeringBehavior* const SteeringBehavior);
 	
 	// returns a reference to the weighted behaviors, can be used to adjust weighting. Is not intended to alter the behaviors themselves.
