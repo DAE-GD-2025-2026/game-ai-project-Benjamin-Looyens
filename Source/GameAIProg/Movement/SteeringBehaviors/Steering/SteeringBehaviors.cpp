@@ -2,7 +2,7 @@
 #include "GameAIProg/Movement/SteeringBehaviors/SteeringAgent.h"
 
 // General
-// TODO : For the Debug Rendering, use the Agent Z rather than 1.0f, as when they go onto the cubes on the side the debug render goes under it
+// HACK : Debug rendering does Agent.Z -85.0 since the mesh bottom is not the Actor position, but is not ideal
 // HACK : Debug rendering based on stored values is not ideal, as behaviors may be applied to multiple agents
 
 // Base Debug Render
@@ -12,9 +12,11 @@ void ISteeringBehavior::DebugRender(ASteeringAgent& Agent)
 
 	UWorld* pWorld = Agent.GetWorld();
 
+	const double agentZ = Agent.GetActorLocation().Z - 85.0;
+
 	// Agent Velocity
 	FVector2D curVel = Agent.GetLinearVelocity();
-	DrawDebugLine(pWorld, FVector{ Agent.GetPosition(), 1.0f }, FVector{ Agent.GetPosition() + curVel, 1.0f }, CUR_VELOCITY_COLOR);
+	DrawDebugLine(pWorld, FVector{ Agent.GetPosition(), agentZ }, FVector{ Agent.GetPosition() + curVel, agentZ }, CUR_VELOCITY_COLOR);
 }
 
 // Seek Behavior
@@ -36,8 +38,10 @@ void Seek::DebugRender(ASteeringAgent& Agent)
 
 	UWorld* pWorld = Agent.GetWorld();
 
+	const double agentZ = Agent.GetActorLocation().Z - 85.0;
+
 	// Line Towards Target
-	DrawDebugLine(pWorld, FVector{ Agent.GetPosition(), 1.0f }, FVector{ Target.Position, 1.0f }, TO_TARGET_COLOR);
+	DrawDebugLine(pWorld, FVector{ Agent.GetPosition(), agentZ }, FVector{Target.Position, agentZ }, TO_TARGET_COLOR);
 }
 
 // Flee Behavior
@@ -56,6 +60,8 @@ void Flee::DebugRender(ASteeringAgent& Agent)
 
 	constexpr FColor AWAY_FROM_TARGET_COLOR{ 0, 255, 0 };
 
+	const double agentZ = Agent.GetActorLocation().Z - 85.0;
+
 	const FVector2D& agentPos = Agent.GetPosition();
 	const FVector2D toTarget = Target.Position - agentPos;
 	FVector2D direction = -toTarget;
@@ -63,7 +69,7 @@ void Flee::DebugRender(ASteeringAgent& Agent)
 	direction *= Agent.GetMaxLinearSpeed();
 
 	UWorld* pWorld = Agent.GetWorld();
-	DrawDebugLine(pWorld, FVector{ agentPos, 1.0f }, FVector{ agentPos, 1.0f } + FVector{ direction, 0.0f}, AWAY_FROM_TARGET_COLOR);
+	DrawDebugLine(pWorld, FVector{ agentPos, agentZ }, FVector{ agentPos, agentZ } + FVector{ direction, 0.0f}, AWAY_FROM_TARGET_COLOR);
 }
 
 // Arrive Behavior
@@ -90,10 +96,12 @@ void Arrive::DebugRender(ASteeringAgent& Agent)
 	constexpr FColor SLOW_COLOR{ 0, 0, 255 };
 	constexpr FColor STOP_COLOR{ 0, 0, 150 };
 
+	const double agentZ = Agent.GetActorLocation().Z - 85.0;
+
 	UWorld* pWorld = Agent.GetWorld();
 	// Had to pass the default variables, since I needed to access the X and Y axes
-	DrawDebugCircle(pWorld, FVector{ Agent.GetPosition(), 1.0f }, m_SlowRadius, 15, SLOW_COLOR, false, (-1.0f), (uint8)0U, (0.0F), { 1, 0, 0 }, { 0, 1, 0 }, false);
-	DrawDebugCircle(pWorld, FVector{ Agent.GetPosition(), 1.0f }, m_StopRadius, 15, STOP_COLOR, false, (-1.0f), (uint8)0U, (0.0F), { 1, 0, 0 }, { 0, 1, 0 }, false);
+	DrawDebugCircle(pWorld, FVector{ Agent.GetPosition(), agentZ }, m_SlowRadius, 15, SLOW_COLOR, false, (-1.0f), (uint8)0U, (0.0F), { 1, 0, 0 }, { 0, 1, 0 }, false);
+	DrawDebugCircle(pWorld, FVector{ Agent.GetPosition(), agentZ }, m_StopRadius, 15, STOP_COLOR, false, (-1.0f), (uint8)0U, (0.0F), { 1, 0, 0 }, { 0, 1, 0 }, false);
 }
 
 // Face Behavior
@@ -136,9 +144,11 @@ void Pursuit::DebugRender(ASteeringAgent& Agent)
 	constexpr float PREDICTED_POS_POINT_SIZE = 10.0f;
 	constexpr FColor PREDICTED_POS_COLOR{ 100, 100, 200 };
 
+	const double agentZ = Agent.GetActorLocation().Z - 85.0;
+
 	UWorld* pWorld = Agent.GetWorld();
 
-	DrawDebugPoint(pWorld, FVector{ m_PredictedPos, 1.0f }, PREDICTED_POS_POINT_SIZE, PREDICTED_POS_COLOR);
+	DrawDebugPoint(pWorld, FVector{ m_PredictedPos, agentZ }, PREDICTED_POS_POINT_SIZE, PREDICTED_POS_COLOR);
 }
 
 // Evade Behavior
@@ -159,9 +169,11 @@ void Evade::DebugRender(ASteeringAgent& Agent)
 
 	constexpr FColor EVASION_RADIUS_COLOR{ 150, 0, 0 };
 
+	const double agentZ = Agent.GetActorLocation().Z - 85.0;
+
 	UWorld* pWorld = Agent.GetWorld();
 	// Had to pass the default variables, since I needed to access the X and Y axes
-	DrawDebugCircle(pWorld, FVector{ Agent.GetPosition(), 1.0f }, m_EvasionRadius, 15, EVASION_RADIUS_COLOR, false, (-1.0f), (uint8)0U, (0.0F), { 1, 0, 0 }, { 0, 1, 0 }, false);
+	DrawDebugCircle(pWorld, FVector{ Agent.GetPosition(), agentZ }, m_EvasionRadius, 15, EVASION_RADIUS_COLOR, false, (-1.0f), (uint8)0U, (0.0F), { 1, 0, 0 }, { 0, 1, 0 }, false);
 }
 
 // Wander Behavior
@@ -193,12 +205,14 @@ void Wander::DebugRender(ASteeringAgent& Agent)
 	constexpr FColor WANDER_POINT_COLOR{ 0, 0, 200 };
 	constexpr FColor WANDER_CIRCLE_COLOR{ 0, 0, 100 };
 
+	const double agentZ = Agent.GetActorLocation().Z - 85.0;
+
 	UWorld* pWorld = Agent.GetWorld();
 
 	// Circle
-	DrawDebugCircle(pWorld, FVector{ Agent.GetPosition(), 1.0f } + Agent.GetActorForwardVector() * m_OffsetDistance,
+	DrawDebugCircle(pWorld, FVector{ Agent.GetPosition(), agentZ } + Agent.GetActorForwardVector() * m_OffsetDistance,
 					m_Radius, 15, WANDER_CIRCLE_COLOR, false, (-1.0f), (uint8)0U, (0.0F), { 1, 0, 0 }, { 0, 1, 0 }, false);
 
 	// Point on Circle
-	DrawDebugPoint(pWorld, FVector{ m_WanderPos, 1.1f }, WANDER_POINT_SIZE, WANDER_POINT_COLOR); // 1.1f to ensure it is above the radius circle
+	DrawDebugPoint(pWorld, FVector{ m_WanderPos, agentZ + 0.1f }, WANDER_POINT_SIZE, WANDER_POINT_COLOR); // + 0.1f to ensure it is above the radius circle
 }

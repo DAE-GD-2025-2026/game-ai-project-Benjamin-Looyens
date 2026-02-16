@@ -21,7 +21,6 @@ SteeringOutput BlendedSteering::CalculateSteering(float DeltaT, ASteeringAgent& 
 
 	for (const auto& behavior : WeightedBehaviors) {
 		const SteeringOutput weighted = (behavior.Weight / totalWeight) * behavior.pBehavior->CalculateSteering(DeltaT, Agent);
-		//SteeringOutput weighted = behavior.Weight * behavior.pBehavior->CalculateSteering(DeltaT, Agent);
 
 		steering.LinearVelocity += weighted.LinearVelocity;
 		steering.AngularVelocity += weighted.AngularVelocity;
@@ -85,9 +84,6 @@ SteeringOutput PrioritySteering::CalculateSteering(float DeltaT, ASteeringAgent&
 
 void PrioritySteering::DebugRender(ASteeringAgent& Agent)
 {
-	// TODO : Render only the valid steering
-	// Potentially could have a uint in the prioity steering that stores the index for latest valid behavior
-
 	if (m_LatestValid > -1 && m_LatestValid < m_PriorityBehaviors.size()) {
 		m_PriorityBehaviors[m_LatestValid]->DebugRender(Agent);
 	}
