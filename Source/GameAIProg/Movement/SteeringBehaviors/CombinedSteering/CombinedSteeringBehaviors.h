@@ -23,6 +23,7 @@ public:
 
 	void AddBehaviour(const WeightedBehavior& WeightedBehavior) { WeightedBehaviors.push_back(WeightedBehavior); }
 	virtual SteeringOutput CalculateSteering(float DeltaT, ASteeringAgent& Agent) override;
+	virtual void DebugRender(ASteeringAgent& Agent) override;
 
 	float* GetWeight(ISteeringBehavior* const SteeringBehavior);
 	
@@ -46,6 +47,7 @@ public:
 
 	void AddBehaviour(ISteeringBehavior* const pBehavior) { m_PriorityBehaviors.push_back(pBehavior); }
 	SteeringOutput CalculateSteering(float DeltaT, ASteeringAgent& Agent) override;
+	virtual void DebugRender(ASteeringAgent& Agent) override;
 
 private:
 	std::vector<ISteeringBehavior*> m_PriorityBehaviors = {};

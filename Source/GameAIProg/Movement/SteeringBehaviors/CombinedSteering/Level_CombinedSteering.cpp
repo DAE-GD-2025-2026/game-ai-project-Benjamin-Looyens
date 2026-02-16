@@ -15,6 +15,23 @@ void ALevel_CombinedSteering::BeginPlay()
 {
 	Super::BeginPlay();
 
+	m_pWander = std::make_unique<Wander>();
+	m_pSeek = std::make_unique<Seek>();
+
+	m_pBlendedActor = GetWorld()->SpawnActor<ASteeringAgent>(SteeringAgentClass, FVector{ -100, 0, 90 }, FRotator::ZeroRotator);
+	if (IsValid(m_pBlendedActor)) {
+		std::vector<BlendedSteering::WeightedBehavior> weightedBehaviors {
+			BlendedSteering::WeightedBehavior{ m_pWander.get(), 0.7f },
+			BlendedSteering::WeightedBehavior{ m_pSeek.get(), 0.3f }
+		};
+
+		m_pBlendedSteering = std::make_unique<BlendedSteering>(weightedBehaviors);
+
+		m_pBlendedActor->SetSteeringBehavior(m_pBlendedSteering.get());
+		m_pBlendedActor->SetDebugRenderingEnabled(true);
+	}
+	
+	//m_pPriorityActor = GetWorld()->SpawnActor<ASteeringAgent>(SteeringAgentClass, FVector{ 100, 0, 90 }, FRotator::ZeroRotator);
 }
 
 void ALevel_CombinedSteering::BeginDestroy()

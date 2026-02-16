@@ -48,7 +48,6 @@ SteeringOutput Flee::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 
 void Flee::DebugRender(ASteeringAgent& Agent)
 {
-	// TODO : Override debug render from Seek
 	Seek::DebugRender(Agent);
 
 	constexpr FColor AWAY_FROM_TARGET_COLOR{ 0, 255, 0 };
@@ -153,6 +152,8 @@ SteeringOutput Wander::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 {
 	SteeringOutput steering{};
 
+	// TODO : Ensure the angle change is accurate
+	// Angle does not seem to go outside of the top arc?
 	const float angleChange = std::clamp((FMath::FRand() * 2.0f) - 1.0f, -m_MaxChange, m_MaxChange);
 	m_CurrentAngle += angleChange;
 
