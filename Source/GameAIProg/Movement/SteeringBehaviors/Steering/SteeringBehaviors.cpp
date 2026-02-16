@@ -3,6 +3,7 @@
 
 // General
 // TODO : For the Debug Rendering, use the Agent Z rather than 1.0f, as when they go onto the cubes on the side the debug render goes under it
+// HACK : Debug rendering based on stored values is not ideal, as behaviors may be applied to multiple agents
 
 // Base Debug Render
 void ISteeringBehavior::DebugRender(ASteeringAgent& Agent)
@@ -147,7 +148,20 @@ SteeringOutput Evade::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 
 	steering.LinearVelocity = -steering.LinearVelocity;
 
+	if (FVector2D::DistSquared(Agent.GetPosition(), Target.Position) >= FMath::Square(m_EvasionRadius)) steering.IsValid = false;
+
 	return steering;
+}
+
+void Evade::DebugRender(ASteeringAgent& Agent)
+{
+	Pursuit::DebugRender(Agent);
+
+	constexpr FColor EVASION_RADIUS_COLOR{ 150, 0, 0 };
+
+	UWorld* pWorld = Agent.GetWorld();
+	// Had to pass the default variables, since I needed to access the X and Y axes
+	DrawDebugCircle(pWorld, FVector{ Agent.GetPosition(), 1.0f }, m_EvasionRadius, 15, EVASION_RADIUS_COLOR, false, (-1.0f), (uint8)0U, (0.0F), { 1, 0, 0 }, { 0, 1, 0 }, false);
 }
 
 // Wander Behavior
