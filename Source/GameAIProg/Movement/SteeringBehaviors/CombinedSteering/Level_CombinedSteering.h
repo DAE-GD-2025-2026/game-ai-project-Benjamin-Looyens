@@ -36,6 +36,7 @@ private:
 	// Common
 	std::unique_ptr<Wander> m_pWander = nullptr;
 	std::unique_ptr<Seek> m_pSeek = nullptr;
+	std::unique_ptr<Evade> m_pEvade = nullptr;
 
 	// Blended
 	ASteeringAgent* m_pBlendedActor = nullptr;

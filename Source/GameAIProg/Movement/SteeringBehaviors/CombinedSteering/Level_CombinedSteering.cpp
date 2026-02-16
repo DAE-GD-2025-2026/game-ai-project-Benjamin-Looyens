@@ -17,6 +17,7 @@ void ALevel_CombinedSteering::BeginPlay()
 
 	m_pWander = std::make_unique<Wander>();
 	m_pSeek = std::make_unique<Seek>();
+	m_pEvade = std::make_unique<Evade>();
 
 	m_pBlendedActor = GetWorld()->SpawnActor<ASteeringAgent>(SteeringAgentClass, FVector{ -100, 0, 90 }, FRotator::ZeroRotator);
 	if (IsValid(m_pBlendedActor)) {
@@ -34,6 +35,14 @@ void ALevel_CombinedSteering::BeginPlay()
 
 	m_pPriorityActor = GetWorld()->SpawnActor<ASteeringAgent>(SteeringAgentClass, FVector{ 100, 0, 90 }, FRotator::ZeroRotator);
 	if (IsValid(m_pPriorityActor)) {
+		std::vector<ISteeringBehavior*> pPrioritizedBehaviors{
+			m_pEvade.get(),
+			m_pWander.get()
+		};
+
+		m_pPrioritySteering = std::make_unique<PrioritySteering>(pPrioritizedBehaviors);
+
+		m_pPriorityActor->SetSteeringBehavior(m_pPrioritySteering.get());
 	}
 }
 
