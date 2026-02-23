@@ -24,6 +24,13 @@ Flock::Flock(
 	m_pEvadeBehavior = std::make_unique<Evade>();
 	m_pCohesionBehavior = std::make_unique<Cohesion>(this);
 
+	std::vector<ISteeringBehavior*> pPrioritizedBehaviors{
+		m_pEvadeBehavior.get(),
+		m_pCohesionBehavior.get()
+	};
+
+	m_pPrioritySteering = std::make_unique<PrioritySteering>(pPrioritizedBehaviors);
+
 	// HACK : Feels very wrong to give the behavior of the agent to evade here
 	pAgentToEvade->SetSteeringBehavior(m_pWanderBehavior.get());
 
@@ -51,7 +58,7 @@ Flock::Flock(
 			Agents[index] = pAgent;
 			pAgent->SetDebugRenderingEnabled(false);
 			pAgent->SetActorTickEnabled(false);
-			pAgent->SetSteeringBehavior(m_pCohesionBehavior.get());
+			pAgent->SetSteeringBehavior(m_pPrioritySteering.get());
 		}
 	}
 
@@ -62,29 +69,29 @@ Flock::Flock(
 
 Flock::~Flock()
 {
- // TODO: Cleanup any additional data
+	// TODO: Cleanup any additional data
 }
 
 void Flock::Tick(float DeltaTime)
 {
 	// Update Targets
 	m_pEvadeBehavior->SetTarget(pAgentToEvade->CreateTarget());
-	
+
 	// Update Flock Agents
 	for (const auto& pAgent : Agents) {
 		if (pAgent) {
 			// Register Neighbors
 			RegisterNeighbors(pAgent);
-			
+
 			pAgent->Tick(DeltaTime);
 		}
 	}
 
- // TODO: update the flock
- // TODO: for every agent:
-  // TODO: register the neighbors for this agent (-> fill the memory pool with the neighbors for the currently evaluated agent)
-  // TODO: update the agent (-> the steeringbehaviors use the neighbors in the memory pool)
-  // TODO: trim the agent to the world
+	// TODO: update the flock
+	// TODO: for every agent:
+	 // TODO: register the neighbors for this agent (-> fill the memory pool with the neighbors for the currently evaluated agent)
+	 // TODO: update the agent (-> the steeringbehaviors use the neighbors in the memory pool)
+	 // TODO: trim the agent to the world
 }
 
 void Flock::RenderDebug()
@@ -94,7 +101,7 @@ void Flock::RenderDebug()
 			// TEMP : Behavior not true flock behavior
 			if (pAgent) {
 				RegisterNeighbors(pAgent);
-				m_pCohesionBehavior->DebugRender(*pAgent); 
+				m_pPrioritySteering->DebugRender(*pAgent);
 			}
 		}
 	}
