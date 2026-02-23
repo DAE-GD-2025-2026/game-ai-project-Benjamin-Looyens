@@ -90,7 +90,12 @@ void Flock::Tick(float DeltaTime)
 void Flock::RenderDebug()
 {
  // TODO: Render all the agents in the flock
-
+	if (DebugRenderSteering) {
+		for (const auto& pAgent : Agents) {
+			// TEMP : Evade Behavior not true flock behavior
+			if (pAgent) m_pEvadeBehavior->DebugRender(*pAgent); 
+		}
+	}
 	if (DebugRenderNeighborhood) RenderNeighborhood();
 }
 
@@ -147,7 +152,6 @@ void Flock::ImGuiRender(ImVec2 const& WindowPos, ImVec2 const& WindowSize)
 
 void Flock::RenderNeighborhood()
 {
-	// TODO: Debugrender the neighbors for the first agent in the flock
 	constexpr FColor SELF_COLOR{ 0, 100, 0 };
 	constexpr FColor NEIGHBORHOOD_COLOR{ 0, 150, 0 };
 	constexpr FColor NEIGHBOR_COLOR{ 0, 255, 0 };
