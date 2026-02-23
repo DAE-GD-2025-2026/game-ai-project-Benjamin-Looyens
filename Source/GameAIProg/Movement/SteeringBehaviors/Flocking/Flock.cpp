@@ -51,7 +51,7 @@ Flock::Flock(
 			Agents[index] = pAgent;
 			pAgent->SetDebugRenderingEnabled(false);
 			pAgent->SetActorTickEnabled(false);
-			pAgent->SetSteeringBehavior(m_pEvadeBehavior.get());
+			pAgent->SetSteeringBehavior(m_pCohesionBehavior.get());
 		}
 	}
 
@@ -89,11 +89,13 @@ void Flock::Tick(float DeltaTime)
 
 void Flock::RenderDebug()
 {
- // TODO: Render all the agents in the flock
 	if (DebugRenderSteering) {
 		for (const auto& pAgent : Agents) {
-			// TEMP : Evade Behavior not true flock behavior
-			if (pAgent) m_pEvadeBehavior->DebugRender(*pAgent); 
+			// TEMP : Behavior not true flock behavior
+			if (pAgent) {
+				RegisterNeighbors(pAgent);
+				m_pCohesionBehavior->DebugRender(*pAgent); 
+			}
 		}
 	}
 	if (DebugRenderNeighborhood) RenderNeighborhood();

@@ -10,7 +10,8 @@ public:
 	Cohesion(Flock* const pFlock) :pFlock(pFlock) {};
 
 	//Cohesion Behavior
-	SteeringOutput CalculateSteering(float deltaT, ASteeringAgent& pAgent) override;
+	SteeringOutput CalculateSteering(float deltaT, ASteeringAgent& Agent) override;
+	void DebugRender(ASteeringAgent& Agent) override;
 
 private:
 	Flock* pFlock = nullptr;
