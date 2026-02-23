@@ -27,7 +27,7 @@ Flock::Flock(
 	// HACK : Feels very wrong to give the behavior of the agent to evade here
 	pAgentToEvade->SetSteeringBehavior(m_pWanderBehavior.get());
 
-	// TODO: initialize the flock and the memory pool
+	// Initialize Flock
 	float appliedWorld = WorldSize / 2;
 	double randX = FMath::RandRange(-appliedWorld, appliedWorld);
 	double randY = FMath::RandRange(-appliedWorld, appliedWorld);
@@ -54,6 +54,10 @@ Flock::Flock(
 			pAgent->SetSteeringBehavior(m_pEvadeBehavior.get());
 		}
 	}
+
+	// Initialize Memory Pool (Neighbors)
+	constexpr int MAX_NEIGHBORS = 10;
+	Neighbors.SetNum(MAX_NEIGHBORS);
 }
 
 Flock::~Flock()
@@ -68,7 +72,12 @@ void Flock::Tick(float DeltaTime)
 	
 	// Update Flock Agents
 	for (const auto& pAgent : Agents) {
-		if (pAgent) pAgent->Tick(DeltaTime);
+		if (pAgent) {
+			// Register Neighbors
+			RegisterNeighbors(pAgent);
+			
+			pAgent->Tick(DeltaTime);
+		}
 	}
 
  // TODO: update the flock
@@ -81,6 +90,8 @@ void Flock::Tick(float DeltaTime)
 void Flock::RenderDebug()
 {
  // TODO: Render all the agents in the flock
+
+	if (DebugRenderNeighborhood) RenderNeighborhood();
 }
 
 void Flock::ImGuiRender(ImVec2 const& WindowPos, ImVec2 const& WindowSize)
@@ -136,13 +147,36 @@ void Flock::ImGuiRender(ImVec2 const& WindowPos, ImVec2 const& WindowSize)
 
 void Flock::RenderNeighborhood()
 {
- // TODO: Debugrender the neighbors for the first agent in the flock
+	// TODO: Debugrender the neighbors for the first agent in the flock
+	constexpr FColor SELF_COLOR{ 0, 100, 0 };
+	constexpr FColor NEIGHBORHOOD_COLOR{ 0, 150, 0 };
+	constexpr FColor NEIGHBOR_COLOR{ 0, 255, 0 };
+
+	// HACK : Should this register them?
+	RegisterNeighbors(Agents[0]);
+
+	DrawDebugCircle(pWorld, FVector{ Agents[0]->GetPosition(), 30 }, NeighborhoodRadius, 15, NEIGHBORHOOD_COLOR, false, (-1.0f), (uint8)0U, (0.0F), { 1, 0, 0 }, { 0, 1, 0 }, false);
+	DrawDebugPoint(pWorld, FVector{ Agents[0]->GetPosition(), 30 }, 20.0f, SELF_COLOR);
+	for (int32 index{}; index < NrOfNeighbors; index++) {
+		DrawDebugPoint(pWorld, FVector{ Neighbors[index]->GetPosition(), 30 }, 20.0f, NEIGHBOR_COLOR);
+	}
 }
 
 #ifndef GAMEAI_USE_SPACE_PARTITIONING
 void Flock::RegisterNeighbors(ASteeringAgent* const pAgent)
 {
  // TODO: Implement
+	NrOfNeighbors = 0;
+
+	for (const auto& pOtherAgent : Agents) {
+		if (NrOfNeighbors >= Neighbors.Num()) break;
+		
+		if (pOtherAgent && pAgent != pOtherAgent) { // Ensure other exists (and isnt self)
+			if (FVector2D::DistSquared(pAgent->GetPosition(), pOtherAgent->GetPosition()) <= FMath::Square(NeighborhoodRadius)) {
+				Neighbors[NrOfNeighbors++] = pOtherAgent;
+			}
+		}
+	}
 }
 #endif
 
