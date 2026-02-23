@@ -131,6 +131,5 @@ void ALevel_CombinedSteering::Tick(float DeltaTime)
 	m_pBlendedSteering->SetTargetAllBlends(MouseTarget);
 
 	// Priority Steering Update
-	// TODO: implement Make sure to also evade the wanderer
 	m_pPrioritySteering->SetTargetAllPriorities(m_pBlendedActor->CreateTarget());
 }

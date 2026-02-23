@@ -27,7 +27,7 @@ void ALevel_Flocking::BeginPlay()
 			TrimWorld->GetTrimWorldSize(),
 			pAgentToEvade,
 			true)
-			);
+	);
 }
 
 // Called every frame

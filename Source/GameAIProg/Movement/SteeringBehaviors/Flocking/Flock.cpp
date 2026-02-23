@@ -14,9 +14,34 @@ Flock::Flock(
 	, FlockSize{ FlockSize }
 	, pAgentToEvade{pAgentToEvade}
 {
-	Agents.SetNum(FlockSize);
+	// TEMP : Initializing to a smaller flock for initial testing!
+	//Agents.SetNum(FlockSize);
+	Agents.SetNum(20);
+	
+	// TODO: initialize the flock and the memory pool
+	float appliedWorld = WorldSize / 2;
+	double randX = FMath::RandRange(-appliedWorld, appliedWorld);
+	double randY = FMath::RandRange(-appliedWorld, appliedWorld);
 
- // TODO: initialize the flock and the memory pool
+	for (int32 index{}; index < Agents.Num(); index++) {
+		ASteeringAgent* pAgent = pWorld->SpawnActor<ASteeringAgent>(AgentClass, FVector{ randX, randY, 90 }, FRotator::ZeroRotator);
+
+		// If spawn is invalid, generate a new spawn location within the world and reattempt
+		constexpr int MAX_ATTEMPTS = 100;
+		int spawnAttempts = 0;
+		while (!IsValid(pAgent)) {
+			randX = FMath::RandRange(-appliedWorld, appliedWorld);
+			randY = FMath::RandRange(-appliedWorld, appliedWorld);
+
+			pAgent = pWorld->SpawnActor<ASteeringAgent>(AgentClass, FVector{ randX, randY, 90 }, FRotator::ZeroRotator);
+
+			if (spawnAttempts++ > MAX_ATTEMPTS) break;
+		}
+
+		if (IsValid(pAgent)) {
+			Agents[index] = pAgent;
+		}
+	}
 }
 
 Flock::~Flock()
@@ -26,6 +51,12 @@ Flock::~Flock()
 
 void Flock::Tick(float DeltaTime)
 {
+	for (const auto& pAgent : Agents)
+	{
+		if (pAgent) pAgent->Tick(DeltaTime);
+	}
+
+
  // TODO: update the flock
  // TODO: for every agent:
   // TODO: register the neighbors for this agent (-> fill the memory pool with the neighbors for the currently evaluated agent)
