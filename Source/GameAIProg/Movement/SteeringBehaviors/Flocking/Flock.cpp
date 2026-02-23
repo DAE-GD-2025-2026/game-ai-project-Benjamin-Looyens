@@ -186,20 +186,29 @@ void Flock::RegisterNeighbors(ASteeringAgent* const pAgent)
 
 FVector2D Flock::GetAverageNeighborPos() const
 {
-	FVector2D avgPosition = FVector2D::ZeroVector;
+	if (NrOfNeighbors == 0) return FVector2D::ZeroVector;
 
- // TODO: Implement
-	
-	return avgPosition;
+	//FVector2D avgPosition = FVector2D::ZeroVector;
+	//const FVector2D avgPosition = std::accumulate(Neighbors.begin(), Neighbors.begin() + static_cast<int32>(NrOfNeighbors), FVector2D::ZeroVector);
+
+	const FVector2D avgPosition = Algo::Accumulate(MakeArrayView(Neighbors).Slice(0, NrOfNeighbors), FVector2D::ZeroVector, 
+		[](const FVector2D& Acc, const ASteeringAgent* pNeighbor) {
+			return Acc + pNeighbor->GetPosition();
+		});
+
+	return avgPosition / NrOfNeighbors;
 }
 
 FVector2D Flock::GetAverageNeighborVelocity() const
 {
-	FVector2D avgVelocity = FVector2D::ZeroVector;
+	if (NrOfNeighbors == 0) return FVector2D::ZeroVector;
 
- // TODO: Implement
+	const FVector2D avgVelocity = Algo::Accumulate(MakeArrayView(Neighbors).Slice(0, NrOfNeighbors), FVector2D::ZeroVector,
+		[](const FVector2D& Acc, const ASteeringAgent* pNeighbor) {
+			return Acc + pNeighbor->GetLinearVelocity();
+		});
 
-	return avgVelocity;
+	return avgVelocity / NrOfNeighbors;
 }
 
 void Flock::SetTarget_Seek(FSteeringParams const& Target)
