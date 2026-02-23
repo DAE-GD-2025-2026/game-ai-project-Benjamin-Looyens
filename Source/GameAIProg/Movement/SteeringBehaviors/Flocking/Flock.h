@@ -65,11 +65,11 @@ private:
 	
 	//Steering Behaviors
 	//std::unique_ptr<Separation> pSeparationBehavior{};
-	//std::unique_ptr<Cohesion> pCohesionBehavior{};
+	std::unique_ptr<Cohesion> m_pCohesionBehavior{};
 	//std::unique_ptr<VelocityMatch> pVelMatchBehavior{};
-	//std::unique_ptr<Seek> pSeekBehavior{};
-	//std::unique_ptr<Wander> pWanderBehavior{};
-	//std::unique_ptr<Evade> pEvadeBehavior{};
+	std::unique_ptr<Seek> m_pSeekBehavior{};
+	std::unique_ptr<Wander> m_pWanderBehavior{};
+	std::unique_ptr<Evade> m_pEvadeBehavior{};
 	
 	std::unique_ptr<BlendedSteering> pBlendedSteering{};
 	std::unique_ptr<PrioritySteering> pPrioritySteering{};

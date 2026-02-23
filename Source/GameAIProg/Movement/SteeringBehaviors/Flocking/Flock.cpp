@@ -18,6 +18,15 @@ Flock::Flock(
 	//Agents.SetNum(FlockSize);
 	Agents.SetNum(20);
 	
+	// Initialize Behaviors
+	m_pSeekBehavior = std::make_unique<Seek>();
+	m_pWanderBehavior = std::make_unique<Wander>();
+	m_pEvadeBehavior = std::make_unique<Evade>();
+	m_pCohesionBehavior = std::make_unique<Cohesion>(this);
+
+	// HACK : Feels very wrong to give the behavior of the agent to evade here
+	pAgentToEvade->SetSteeringBehavior(m_pWanderBehavior.get());
+
 	// TODO: initialize the flock and the memory pool
 	float appliedWorld = WorldSize / 2;
 	double randX = FMath::RandRange(-appliedWorld, appliedWorld);
@@ -27,7 +36,7 @@ Flock::Flock(
 		ASteeringAgent* pAgent = pWorld->SpawnActor<ASteeringAgent>(AgentClass, FVector{ randX, randY, 90 }, FRotator::ZeroRotator);
 
 		// If spawn is invalid, generate a new spawn location within the world and reattempt
-		constexpr int MAX_ATTEMPTS = 100;
+		constexpr int MAX_SPAWN_ATTEMPTS = 100;
 		int spawnAttempts = 0;
 		while (!IsValid(pAgent)) {
 			randX = FMath::RandRange(-appliedWorld, appliedWorld);
@@ -35,11 +44,14 @@ Flock::Flock(
 
 			pAgent = pWorld->SpawnActor<ASteeringAgent>(AgentClass, FVector{ randX, randY, 90 }, FRotator::ZeroRotator);
 
-			if (spawnAttempts++ > MAX_ATTEMPTS) break;
+			if (spawnAttempts++ > MAX_SPAWN_ATTEMPTS) break;
 		}
 
 		if (IsValid(pAgent)) {
 			Agents[index] = pAgent;
+			pAgent->SetDebugRenderingEnabled(false);
+			pAgent->SetActorTickEnabled(false);
+			pAgent->SetSteeringBehavior(m_pEvadeBehavior.get());
 		}
 	}
 }
@@ -51,11 +63,13 @@ Flock::~Flock()
 
 void Flock::Tick(float DeltaTime)
 {
-	for (const auto& pAgent : Agents)
-	{
+	// Update Targets
+	m_pEvadeBehavior->SetTarget(pAgentToEvade->CreateTarget());
+	
+	// Update Flock Agents
+	for (const auto& pAgent : Agents) {
 		if (pAgent) pAgent->Tick(DeltaTime);
 	}
-
 
  // TODO: update the flock
  // TODO: for every agent:
