@@ -22,6 +22,7 @@ Flock::Flock(
 	m_pSeekBehavior = std::make_unique<Seek>();
 	m_pWanderBehavior = std::make_unique<Wander>();
 	m_pEvadeBehavior = std::make_unique<Evade>();
+	m_pSeparationBehavior = std::make_unique<Separation>(this);
 	m_pCohesionBehavior = std::make_unique<Cohesion>(this);
 
 	std::vector<ISteeringBehavior*> pPrioritizedBehaviors{
@@ -58,7 +59,7 @@ Flock::Flock(
 			Agents[index] = pAgent;
 			pAgent->SetDebugRenderingEnabled(false);
 			pAgent->SetActorTickEnabled(false);
-			pAgent->SetSteeringBehavior(m_pPrioritySteering.get());
+			pAgent->SetSteeringBehavior(m_pSeparationBehavior.get());
 		}
 	}
 
@@ -101,7 +102,7 @@ void Flock::RenderDebug()
 			// TEMP : Behavior not true flock behavior
 			if (pAgent) {
 				RegisterNeighbors(pAgent);
-				m_pPrioritySteering->DebugRender(*pAgent);
+				m_pSeparationBehavior->DebugRender(*pAgent);
 			}
 		}
 	}

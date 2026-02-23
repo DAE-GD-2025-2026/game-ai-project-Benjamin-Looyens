@@ -64,7 +64,7 @@ private:
 	ASteeringAgent* pAgentToEvade{nullptr};
 	
 	//Steering Behaviors
-	//std::unique_ptr<Separation> pSeparationBehavior{};
+	std::unique_ptr<Separation> m_pSeparationBehavior{};
 	std::unique_ptr<Cohesion> m_pCohesionBehavior{};
 	//std::unique_ptr<VelocityMatch> pVelMatchBehavior{};
 	std::unique_ptr<Seek> m_pSeekBehavior{};

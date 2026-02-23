@@ -32,6 +32,20 @@ void Cohesion::DebugRender(ASteeringAgent& Agent)
 
 //*********************
 //SEPARATION (FLOCKING)
+SteeringOutput Separation::CalculateSteering(float deltaT, ASteeringAgent& Agent)
+{
+	SteeringOutput steering{};
+
+	// In theory I could inherit this from cohesion
+	const FVector2D averagePos = pFlock->GetAverageNeighborPos();
+	if (averagePos.SquaredLength() > 0.0) steering.LinearVelocity = -(averagePos - Agent.GetPosition());
+
+	return steering;
+}
+void Separation::DebugRender(ASteeringAgent& Agent)
+{
+	// TODO : Separation Debug Render
+}
 
 //*************************
 //VELOCITY MATCH (FLOCKING)
