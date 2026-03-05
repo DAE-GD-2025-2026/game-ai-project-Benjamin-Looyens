@@ -93,8 +93,27 @@ void CellSpace::RenderCells() const
 
 int CellSpace::PositionToIndex(FVector2D const & Pos) const
 {
-	// TODO Calculate the index of the cell based on the position
-	return 0;
+	int index{};
+
+	const FVector2D offsetPos = Pos + FVector2D{ SpaceWidth / 2, SpaceHeight / 2 };
+
+	// I feel like there could be a more elegant way to do this?
+	for (int colIndex{}; colIndex < NrOfCols; colIndex++) {
+		for (int rowIndex{}; rowIndex < NrOfRows; rowIndex++) {
+			const bool xCheck = offsetPos.X >= (rowIndex * CellWidth) && 
+								offsetPos.X < ((rowIndex + 1) * CellWidth);
+
+			if (xCheck) {
+				const bool yCheck = offsetPos.Y >= (colIndex * CellHeight) && 
+									offsetPos.Y < ((colIndex + 1) * CellHeight);
+
+				if (yCheck) return index;
+			}
+			index++;
+		}
+	}
+
+	return index;
 }
 
 bool CellSpace::DoRectsOverlap(FRect const & RectA, FRect const & RectB)
