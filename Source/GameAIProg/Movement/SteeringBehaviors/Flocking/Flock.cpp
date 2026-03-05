@@ -100,18 +100,13 @@ void Flock::Tick(float DeltaTime)
 		}
 	}
 
-	// TODO: update the flock
-	// TODO: for every agent:
-	 // TODO: register the neighbors for this agent (-> fill the memory pool with the neighbors for the currently evaluated agent)
-	 // TODO: update the agent (-> the steeringbehaviors use the neighbors in the memory pool)
-	 // TODO: trim the agent to the world
+	// TODO: trim the agent to the world ?
 }
 
 void Flock::RenderDebug()
 {
 	if (DebugRenderSteering) {
 		for (const auto& pAgent : Agents) {
-			// TEMP : Behavior not true flock behavior
 			if (pAgent) {
 				RegisterNeighbors(pAgent);
 				m_pPrioritySteering->DebugRender(*pAgent);
@@ -159,7 +154,10 @@ void Flock::ImGuiRender(ImVec2 const& WindowPos, ImVec2 const& WindowSize)
 		ImGui::Text("Flocking");
 		ImGui::Spacing();
 
-		// TODO: implement ImGUI checkboxes for debug rendering here
+		ImGui::Checkbox("Render Neighbors (Actor 0)", &DebugRenderNeighborhood);
+		ImGui::Checkbox("Debug Render Steering", &DebugRenderSteering);
+		ImGui::Checkbox("Debug Render Partitions (Not Implemented)", &DebugRenderPartitions);
+		
 
 		ImGui::Text("Behavior Weights");
 		ImGui::Spacing();
