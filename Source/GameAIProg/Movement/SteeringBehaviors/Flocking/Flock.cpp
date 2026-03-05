@@ -10,11 +10,18 @@ Flock::Flock(
 	float WorldSize,
 	ASteeringAgent* const pAgentToEvade,
 	bool bTrimWorld)
-	: pWorld{pWorld}
+	: pWorld{ pWorld }
 	, FlockSize{ FlockSize }
-	, pAgentToEvade{pAgentToEvade}
+	, pAgentToEvade{ pAgentToEvade }
 {
 	Agents.SetNum(FlockSize);
+	
+#ifdef GAMEAI_USE_SPACE_PARTITIONING
+	OldPositions.SetNum(FlockSize);
+
+	std::transform(Agents.begin(), Agents.end(), OldPositions.begin(), 
+		[](const ASteeringAgent& agent) { return agent.GetPosition(); });
+#endif
 	
 	// Initialize Behaviors
 	m_pSeekBehavior = std::make_unique<Seek>();
@@ -77,7 +84,9 @@ Flock::Flock(
 
 	// Initialize Memory Pool (Neighbors)
 	constexpr int MAX_NEIGHBORS = 20;
-	Neighbors.SetNum(MAX_NEIGHBORS);
+#ifndef GAMEAI_USE_SPACE_PARTITIONING
+	Neighbors.SetNum(MAX_NEIGHBORS); // TODO : Replace with equivalent for partitioning
+#endif
 }
 
 Flock::~Flock()
@@ -94,26 +103,43 @@ void Flock::Tick(float DeltaTime)
 	for (const auto& pAgent : Agents) {
 		if (pAgent) {
 			// Register Neighbors
+#ifndef GAMEAI_USE_SPACE_PARTITIONING
 			RegisterNeighbors(pAgent);
-
+#else
+			m_pPartitionedSpace->RegisterNeighbors(*pAgent, NeighborhoodRadius);
+#endif
 			pAgent->Tick(DeltaTime);
 		}
 	}
 
 	// TODO: trim the agent to the world ?
+
+#ifdef GAMEAI_USE_SPACE_PARTITIONING
+	// Update Old Positions
+	std::transform(Agents.begin(), Agents.end(), OldPositions.begin(),
+		[](const ASteeringAgent& agent) { return agent.GetPosition(); });
+#endif
 }
 
 void Flock::RenderDebug()
 {
 	if (DebugRenderSteering) {
 		if (DebugRenderOnlyFirstAgent && Agents[0]) {
+#ifndef GAMEAI_USE_SPACE_PARTITIONING
 			RegisterNeighbors(Agents[0]);
+#else
+			m_pPartitionedSpace->RegisterNeighbors(*(Agents[0]), NeighborhoodRadius);
+#endif
 			m_pPrioritySteering->DebugRender(*(Agents[0]));
 		}
 		else {
 			for (const auto& pAgent : Agents) {
 				if (pAgent) {
+#ifndef GAMEAI_USE_SPACE_PARTITIONING
 					RegisterNeighbors(pAgent);
+#else
+					m_pPartitionedSpace->RegisterNeighbors(*pAgent, NeighborhoodRadius);
+#endif
 					m_pPrioritySteering->DebugRender(*pAgent);
 				}
 			}
@@ -199,12 +225,26 @@ void Flock::RenderNeighborhood()
 	constexpr FColor NEIGHBOR_COLOR{ 0, 255, 0 };
 
 	// HACK : Should this register them?
+#ifndef GAMEAI_USE_SPACE_PARTITIONING
 	RegisterNeighbors(Agents[0]);
+#else
+	m_pPartitionedSpace->RegisterNeighbors(*(Agents[0]), NeighborhoodRadius);
+#endif
 
 	DrawDebugCircle(pWorld, FVector{ Agents[0]->GetPosition(), 30 }, NeighborhoodRadius, 15, NEIGHBORHOOD_COLOR, false, (-1.0f), (uint8)0U, (0.0F), { 1, 0, 0 }, { 0, 1, 0 }, false);
 	DrawDebugPoint(pWorld, FVector{ Agents[0]->GetPosition(), 30 }, 20.0f, SELF_COLOR);
+
+#ifndef GAMEAI_USE_SPACE_PARTITIONING
 	for (int32 index{}; index < NrOfNeighbors; index++) {
+#else
+	for (int32 index{}; index < m_pPartitionedSpace->GetNrOfNeighbors(); index++) {
+#endif
+
+#ifndef GAMEAI_USE_SPACE_PARTITIONING
 		DrawDebugPoint(pWorld, FVector{ Neighbors[index]->GetPosition(), 30 }, 20.0f, NEIGHBOR_COLOR);
+#else
+		DrawDebugPoint(pWorld, FVector{ m_pPartitionedSpace->GetNeighbors()[index]->GetPosition(), 30 }, 20.0f, NEIGHBOR_COLOR);
+#endif
 	}
 }
 
@@ -229,11 +269,17 @@ FVector2D Flock::GetAverageNeighborPos() const
 {
 	if (NrOfNeighbors == 0) return FVector2D::ZeroVector;
 
+
+
+#ifndef GAMEAI_USE_SPACE_PARTITIONING
 	const FVector2D avgPosition = Algo::Accumulate(MakeArrayView(Neighbors).Slice(0, NrOfNeighbors), FVector2D::ZeroVector, 
+#else
+	const FVector2D avgPosition = Algo::Accumulate(MakeArrayView(m_pPartitionedSpace->GetNeighbors()).Slice(0, NrOfNeighbors), FVector2D::ZeroVector, 
+#endif
 		[](const FVector2D& Acc, const ASteeringAgent* pNeighbor) {
 			return Acc + pNeighbor->GetPosition();
 		});
-
+	
 	return avgPosition / NrOfNeighbors;
 }
 
@@ -241,11 +287,15 @@ FVector2D Flock::GetAverageNeighborVelocity() const
 {
 	if (NrOfNeighbors == 0) return FVector2D::ZeroVector;
 
+#ifndef GAMEAI_USE_SPACE_PARTITIONING
 	const FVector2D avgVelocity = Algo::Accumulate(MakeArrayView(Neighbors).Slice(0, NrOfNeighbors), FVector2D::ZeroVector,
+#else
+	const FVector2D avgVelocity = Algo::Accumulate(MakeArrayView(m_pPartitionedSpace->GetNeighbors()).Slice(0, NrOfNeighbors), FVector2D::ZeroVector,
+#endif
 		[](const FVector2D& Acc, const ASteeringAgent* pNeighbor) {
 			return Acc + pNeighbor->GetLinearVelocity();
 		});
-
+	
 	return avgVelocity / NrOfNeighbors;
 }
 
