@@ -158,12 +158,27 @@ void Flock::ImGuiRender(ImVec2 const& WindowPos, ImVec2 const& WindowSize)
 		ImGui::Text("Flocking");
 		ImGui::Spacing();
 
-  // TODO: implement ImGUI checkboxes for debug rendering here
+		// TODO: implement ImGUI checkboxes for debug rendering here
 
 		ImGui::Text("Behavior Weights");
 		ImGui::Spacing();
 
-  // TODO: implement ImGUI sliders for steering behavior weights here
+		ImGuiHelpers::ImGuiSliderFloatWithSetter("Seek",
+			m_pBlendedSteering->GetWeightedBehaviorsRef()[0].Weight, 0.f, 1.f,
+			[this](float InVal) { m_pBlendedSteering->GetWeightedBehaviorsRef()[0].Weight = InVal; }, "%.2f");
+		ImGuiHelpers::ImGuiSliderFloatWithSetter("Cohesion",
+			m_pBlendedSteering->GetWeightedBehaviorsRef()[1].Weight, 0.f, 1.f,
+			[this](float InVal) { m_pBlendedSteering->GetWeightedBehaviorsRef()[1].Weight = InVal; }, "%.2f");
+		ImGuiHelpers::ImGuiSliderFloatWithSetter("Separation",
+			m_pBlendedSteering->GetWeightedBehaviorsRef()[2].Weight, 0.f, 1.f,
+			[this](float InVal) { m_pBlendedSteering->GetWeightedBehaviorsRef()[2].Weight = InVal; }, "%.2f");
+		ImGuiHelpers::ImGuiSliderFloatWithSetter("Velocity Match",
+			m_pBlendedSteering->GetWeightedBehaviorsRef()[3].Weight, 0.f, 1.f,
+			[this](float InVal) { m_pBlendedSteering->GetWeightedBehaviorsRef()[3].Weight = InVal; }, "%.2f");
+		ImGuiHelpers::ImGuiSliderFloatWithSetter("Wander",
+			m_pBlendedSteering->GetWeightedBehaviorsRef()[4].Weight, 0.f, 1.f,
+			[this](float InVal) { m_pBlendedSteering->GetWeightedBehaviorsRef()[4].Weight = InVal; }, "%.2f");
+
 		//End
 		ImGui::End();
 	}
