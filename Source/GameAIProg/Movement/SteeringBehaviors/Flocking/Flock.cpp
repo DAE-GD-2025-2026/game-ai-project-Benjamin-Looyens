@@ -14,9 +14,7 @@ Flock::Flock(
 	, FlockSize{ FlockSize }
 	, pAgentToEvade{pAgentToEvade}
 {
-	// TEMP : Initializing to a smaller flock for initial testing!
-	//Agents.SetNum(FlockSize);
-	Agents.SetNum(20);
+	Agents.SetNum(FlockSize);
 	
 	// Initialize Behaviors
 	m_pSeekBehavior = std::make_unique<Seek>();
@@ -63,7 +61,10 @@ Flock::Flock(
 
 			pAgent = pWorld->SpawnActor<ASteeringAgent>(AgentClass, FVector{ randX, randY, 90 }, FRotator::ZeroRotator);
 
-			if (spawnAttempts++ > MAX_SPAWN_ATTEMPTS) break;
+			if (spawnAttempts++ > MAX_SPAWN_ATTEMPTS) {
+				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("Could not spawn agent %d"), index));
+				break;
+			}
 		}
 
 		if (IsValid(pAgent)) {
