@@ -106,10 +106,16 @@ void Flock::Tick(float DeltaTime)
 void Flock::RenderDebug()
 {
 	if (DebugRenderSteering) {
-		for (const auto& pAgent : Agents) {
-			if (pAgent) {
-				RegisterNeighbors(pAgent);
-				m_pPrioritySteering->DebugRender(*pAgent);
+		if (DebugRenderOnlyFirstAgent && Agents[0]) {
+			RegisterNeighbors(Agents[0]);
+			m_pPrioritySteering->DebugRender(*(Agents[0]));
+		}
+		else {
+			for (const auto& pAgent : Agents) {
+				if (pAgent) {
+					RegisterNeighbors(pAgent);
+					m_pPrioritySteering->DebugRender(*pAgent);
+				}
 			}
 		}
 	}
@@ -156,6 +162,7 @@ void Flock::ImGuiRender(ImVec2 const& WindowPos, ImVec2 const& WindowSize)
 
 		ImGui::Checkbox("Render Neighbors (Actor 0)", &DebugRenderNeighborhood);
 		ImGui::Checkbox("Debug Render Steering", &DebugRenderSteering);
+		ImGui::Checkbox("Debug Render Only Agent 0", &DebugRenderOnlyFirstAgent);
 		ImGui::Checkbox("Debug Render Partitions (Not Implemented)", &DebugRenderPartitions);
 		
 

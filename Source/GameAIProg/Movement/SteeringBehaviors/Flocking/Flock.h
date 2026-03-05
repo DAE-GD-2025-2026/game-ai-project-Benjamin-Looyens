@@ -78,6 +78,7 @@ private:
 	bool DebugRenderSteering{false};
 	bool DebugRenderNeighborhood{true};
 	bool DebugRenderPartitions{true};
+	bool DebugRenderOnlyFirstAgent{true};
 
 	void RenderNeighborhood();
 };
