@@ -10,9 +10,12 @@ SteeringOutput Cohesion::CalculateSteering(float deltaT, ASteeringAgent& Agent)
 {
 	SteeringOutput steering{};
 
-	const FVector2D averagePos = pFlock->GetAverageNeighborPos();
-	if (averagePos.SquaredLength() > 0.0) steering.LinearVelocity = averagePos - Agent.GetPosition();
+	if (pFlock->GetNrOfNeighbors() > 0) {
+		Target.Position = pFlock->GetAverageNeighborPos();
+		steering = Seek::CalculateSteering(deltaT, Agent);
+	}
 
+	steering.LinearVelocity.Normalize();
 	return steering;
 }
 

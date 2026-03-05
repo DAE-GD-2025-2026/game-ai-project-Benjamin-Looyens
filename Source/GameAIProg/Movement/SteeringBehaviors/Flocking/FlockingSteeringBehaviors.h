@@ -4,7 +4,7 @@ class Flock;
 
 //COHESION - FLOCKING
 //*******************
-class Cohesion final : public ISteeringBehavior
+class Cohesion final : public Seek
 {
 public:
 	Cohesion(Flock* const pFlock) :pFlock(pFlock) {};
