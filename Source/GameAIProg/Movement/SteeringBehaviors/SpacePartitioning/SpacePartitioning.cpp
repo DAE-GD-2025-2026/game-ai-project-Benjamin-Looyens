@@ -49,11 +49,16 @@ CellSpace::CellSpace(UWorld* pWorld, float Width, float Height, int Rows, int Co
 
 		Cells.emplace_back((index % Rows) * CellWidth - (Width / 2), (index / Cols) * CellHeight - (Height / 2), CellWidth, CellHeight); // Cell(float Left, float Bottom, float Width, float Height);
 	}
+
+	// Initialize Memory Pool
+	Neighbors.SetNum(MaxEntities);
 }
 
 void CellSpace::AddAgent(ASteeringAgent& Agent)
 {
 	// TODO Add the agent to the correct cell
+	const int indexToAdd = PositionToIndex(Agent.GetPosition());
+	Cells[indexToAdd].Agents.push_back(&Agent);
 }
 
 void CellSpace::UpdateAgentCell(ASteeringAgent& Agent, const FVector2D& OldPos)
@@ -88,6 +93,9 @@ void CellSpace::RenderCells() const
 		DrawDebugLine(pWorld, B, C, FColor::Black, false);
 		DrawDebugLine(pWorld, C, D, FColor::Black, false);
 		DrawDebugLine(pWorld, D, A, FColor::Black, false);
+
+		const FVector textLocation{ cell.BoundingBox.Min.X + (CellWidth / 2), cell.BoundingBox.Min.Y + (CellHeight / 2), 20.0f };
+		DrawDebugString(pWorld, textLocation, FString::Printf(TEXT("%d"), cell.Agents.size()), 0, FColor::Blue);
 	}
 }
 

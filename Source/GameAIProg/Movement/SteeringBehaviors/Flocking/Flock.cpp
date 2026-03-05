@@ -78,6 +78,8 @@ Flock::Flock(
 			pAgent->SetDebugRenderingEnabled(false);
 			pAgent->SetActorTickEnabled(false);
 			pAgent->SetSteeringBehavior(m_pPrioritySteering.get());
+
+			m_pPartitionedSpace->AddAgent(*pAgent);
 		}
 	}
 
