@@ -85,6 +85,8 @@ Flock::Flock(
 	constexpr int MAX_NEIGHBORS = 20;
 #ifndef GAMEAI_USE_SPACE_PARTITIONING
 	Neighbors.SetNum(MAX_NEIGHBORS); // TODO : Replace with equivalent for partitioning
+#else
+
 #endif
 }
 
@@ -148,6 +150,10 @@ void Flock::RenderDebug()
 		}
 	}
 	if (DebugRenderNeighborhood) RenderNeighborhood();
+
+#ifdef GAMEAI_USE_SPACE_PARTITIONING
+	if (DebugRenderPartitions) m_pPartitionedSpace->RenderCells();
+#endif
 }
 
 void Flock::ImGuiRender(ImVec2 const& WindowPos, ImVec2 const& WindowSize)
