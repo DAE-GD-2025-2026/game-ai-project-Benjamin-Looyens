@@ -19,8 +19,7 @@ Flock::Flock(
 #ifdef GAMEAI_USE_SPACE_PARTITIONING
 	OldPositions.SetNum(FlockSize);
 
-	std::transform(Agents.begin(), Agents.end(), OldPositions.begin(), 
-		[](const ASteeringAgent& agent) { return agent.GetPosition(); });
+	m_pPartitionedSpace = std::make_unique<CellSpace>(pWorld, WorldSize * 2, WorldSize * 2, NrOfCellsX, NrOfCellsX, 20); // 20 Max Neighbors?
 #endif
 	
 	// Initialize Behaviors
@@ -116,8 +115,11 @@ void Flock::Tick(float DeltaTime)
 
 #ifdef GAMEAI_USE_SPACE_PARTITIONING
 	// Update Old Positions
-	std::transform(Agents.begin(), Agents.end(), OldPositions.begin(),
-		[](const ASteeringAgent& agent) { return agent.GetPosition(); });
+	//std::transform(Agents.begin(), Agents.end(), OldPositions.begin(),
+	//	[](const ASteeringAgent* const agent) { return agent->GetPosition(); });
+	for (int index{}; index < Agents.Num(); ++index) {
+		OldPositions[index] = Agents[index]->GetPosition();
+	}
 #endif
 }
 
