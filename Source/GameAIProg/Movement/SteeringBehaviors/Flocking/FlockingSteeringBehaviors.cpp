@@ -60,3 +60,17 @@ void Separation::DebugRender(ASteeringAgent& Agent)
 
 //*************************
 //VELOCITY MATCH (FLOCKING)
+SteeringOutput VelocityMatch::CalculateSteering(float deltaT, ASteeringAgent& Agent)
+{
+	SteeringOutput steering{};
+
+	const FVector2D averageVel = pFlock->GetAverageNeighborVelocity();
+	if (averageVel.SquaredLength() > 0.0) steering.LinearVelocity = averageVel;
+
+	steering.LinearVelocity.Normalize();
+	return steering;
+}
+void VelocityMatch::DebugRender(ASteeringAgent& Agent) 
+{
+	// TODO : velocity match debug render somehow?
+}

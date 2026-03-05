@@ -34,3 +34,15 @@ private:
 
 //VELOCITY MATCH - FLOCKING
 //************************
+class VelocityMatch final : public ISteeringBehavior
+{
+public:
+	VelocityMatch(Flock* const pFlock) :pFlock(pFlock) {};
+
+	//Separation Behavior
+	SteeringOutput CalculateSteering(float deltaT, ASteeringAgent& Agent) override;
+	void DebugRender(ASteeringAgent& Agent) override;
+
+private:
+	Flock* pFlock = nullptr;
+};

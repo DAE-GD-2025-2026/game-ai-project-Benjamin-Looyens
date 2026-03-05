@@ -66,7 +66,7 @@ private:
 	//Steering Behaviors
 	std::unique_ptr<Separation> m_pSeparationBehavior{};
 	std::unique_ptr<Cohesion> m_pCohesionBehavior{};
-	//std::unique_ptr<VelocityMatch> pVelMatchBehavior{};
+	std::unique_ptr<VelocityMatch> m_pVelMatchBehavior{};
 	std::unique_ptr<Seek> m_pSeekBehavior{};
 	std::unique_ptr<Wander> m_pWanderBehavior{};
 	std::unique_ptr<Evade> m_pEvadeBehavior{};

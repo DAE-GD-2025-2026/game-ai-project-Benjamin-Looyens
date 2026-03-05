@@ -24,6 +24,7 @@ Flock::Flock(
 	m_pEvadeBehavior = std::make_unique<Evade>();
 	m_pSeparationBehavior = std::make_unique<Separation>(this);
 	m_pCohesionBehavior = std::make_unique<Cohesion>(this);
+	m_pVelMatchBehavior = std::make_unique<VelocityMatch>(this);
 
 	std::vector<ISteeringBehavior*> pPrioritizedBehaviors{
 		m_pEvadeBehavior.get(),
