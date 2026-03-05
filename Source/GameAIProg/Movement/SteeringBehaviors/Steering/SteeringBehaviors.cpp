@@ -26,6 +26,7 @@ SteeringOutput Seek::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 
 	steering.LinearVelocity = Target.Position - Agent.GetPosition(); // No need to normalize, as the AddMovementInput() fuction within the SteeringAgent::Tick() will normalize
 
+	steering.LinearVelocity.Normalize();
 	return steering;
 }
 
@@ -134,6 +135,7 @@ SteeringOutput Pursuit::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 
 	steering.LinearVelocity = m_PredictedPos - Agent.GetPosition();
 
+	steering.LinearVelocity.Normalize();
 	return steering;
 }
 
@@ -194,6 +196,7 @@ SteeringOutput Wander::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 
 	steering.LinearVelocity = m_WanderPos - Agent.GetPosition();
 
+	steering.LinearVelocity.Normalize();
 	return steering;
 }
 
