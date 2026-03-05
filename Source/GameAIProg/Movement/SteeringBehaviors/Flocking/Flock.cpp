@@ -26,9 +26,19 @@ Flock::Flock(
 	m_pCohesionBehavior = std::make_unique<Cohesion>(this);
 	m_pVelMatchBehavior = std::make_unique<VelocityMatch>(this);
 
+	std::vector<BlendedSteering::WeightedBehavior> weightedBehaviors{			 // Numbers with good results:
+		BlendedSteering::WeightedBehavior{ m_pSeekBehavior.get(), 0.2f },		 // 0.27 Seek
+		BlendedSteering::WeightedBehavior{ m_pCohesionBehavior.get(), 0.2f },	 // 0.24 Cohesion
+		BlendedSteering::WeightedBehavior{ m_pSeparationBehavior.get(), 0.2f },	 // 0.43 Separation
+		BlendedSteering::WeightedBehavior{ m_pVelMatchBehavior.get(), 0.2f },	 // 0.2 VelMatcvh
+		BlendedSteering::WeightedBehavior{ m_pWanderBehavior.get(), 0.2f },		 // 0.24 wander
+	};
+	
+	m_pBlendedSteering = std::make_unique<BlendedSteering>(weightedBehaviors);
+
 	std::vector<ISteeringBehavior*> pPrioritizedBehaviors{
 		m_pEvadeBehavior.get(),
-		m_pCohesionBehavior.get()
+		m_pBlendedSteering.get()
 	};
 
 	m_pPrioritySteering = std::make_unique<PrioritySteering>(pPrioritizedBehaviors);
@@ -60,12 +70,12 @@ Flock::Flock(
 			Agents[index] = pAgent;
 			pAgent->SetDebugRenderingEnabled(false);
 			pAgent->SetActorTickEnabled(false);
-			pAgent->SetSteeringBehavior(m_pSeparationBehavior.get());
+			pAgent->SetSteeringBehavior(m_pPrioritySteering.get());
 		}
 	}
 
 	// Initialize Memory Pool (Neighbors)
-	constexpr int MAX_NEIGHBORS = 10;
+	constexpr int MAX_NEIGHBORS = 20;
 	Neighbors.SetNum(MAX_NEIGHBORS);
 }
 
@@ -103,7 +113,7 @@ void Flock::RenderDebug()
 			// TEMP : Behavior not true flock behavior
 			if (pAgent) {
 				RegisterNeighbors(pAgent);
-				m_pSeparationBehavior->DebugRender(*pAgent);
+				m_pPrioritySteering->DebugRender(*pAgent);
 			}
 		}
 	}
@@ -180,7 +190,6 @@ void Flock::RenderNeighborhood()
 #ifndef GAMEAI_USE_SPACE_PARTITIONING
 void Flock::RegisterNeighbors(ASteeringAgent* const pAgent)
 {
- // TODO: Implement
 	NrOfNeighbors = 0;
 
 	for (const auto& pOtherAgent : Agents) {
@@ -198,9 +207,6 @@ void Flock::RegisterNeighbors(ASteeringAgent* const pAgent)
 FVector2D Flock::GetAverageNeighborPos() const
 {
 	if (NrOfNeighbors == 0) return FVector2D::ZeroVector;
-
-	//FVector2D avgPosition = FVector2D::ZeroVector;
-	//const FVector2D avgPosition = std::accumulate(Neighbors.begin(), Neighbors.begin() + static_cast<int32>(NrOfNeighbors), FVector2D::ZeroVector);
 
 	const FVector2D avgPosition = Algo::Accumulate(MakeArrayView(Neighbors).Slice(0, NrOfNeighbors), FVector2D::ZeroVector, 
 		[](const FVector2D& Acc, const ASteeringAgent* pNeighbor) {
@@ -224,6 +230,6 @@ FVector2D Flock::GetAverageNeighborVelocity() const
 
 void Flock::SetTarget_Seek(FSteeringParams const& Target)
 {
- // TODO: Implement
+	m_pSeekBehavior->SetTarget(Target);
 }
 
