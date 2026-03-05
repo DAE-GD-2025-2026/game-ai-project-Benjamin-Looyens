@@ -36,10 +36,21 @@ SteeringOutput Separation::CalculateSteering(float deltaT, ASteeringAgent& Agent
 {
 	SteeringOutput steering{};
 
-	// In theory I could inherit this from cohesion
-	const FVector2D averagePos = pFlock->GetAverageNeighborPos();
-	if (averagePos.SquaredLength() > 0.0) steering.LinearVelocity = -(averagePos - Agent.GetPosition());
+	const FVector2D& ownPos = Agent.GetPosition();
 
+	const auto& pNeighbors = pFlock->GetNeighbors();
+	const int numNeighbors = pFlock->GetNrOfNeighbors();
+	for (int32 index{}; index < numNeighbors; index++) {
+		const FVector2D& neighborPos = pNeighbors[index]->GetPosition();
+	
+		//const FVector2D toNeighbor = neighborPos - ownPos;
+		const FVector2D fromNeighbor = ownPos - neighborPos;
+		const float sqrDist = fromNeighbor.SquaredLength();
+	
+		steering.LinearVelocity += fromNeighbor / sqrDist;
+	}
+
+	steering.LinearVelocity.Normalize();
 	return steering;
 }
 void Separation::DebugRender(ASteeringAgent& Agent)
