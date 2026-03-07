@@ -49,6 +49,7 @@ private:
 	UWorld* pWorld{nullptr};
 	
 	int FlockSize{0};
+	float WorldSize{0};
 	TArray<ASteeringAgent*> Agents{};
 #ifdef GAMEAI_USE_SPACE_PARTITIONING
 	std::unique_ptr<CellSpace> m_pPartitionedSpace{};

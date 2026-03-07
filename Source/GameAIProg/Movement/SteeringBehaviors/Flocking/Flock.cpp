@@ -13,6 +13,7 @@ Flock::Flock(
 	: pWorld{ pWorld }
 	, FlockSize{ FlockSize }
 	, pAgentToEvade{ pAgentToEvade }
+	, WorldSize{ WorldSize }
 {
 	Agents.SetNum(FlockSize);
 	
@@ -108,31 +109,30 @@ void Flock::Tick(float DeltaTime)
 	//for (const auto& pAgent : Agents) {
 	for (int index{}; index < Agents.Num(); index++) {
 		const auto& pAgent = Agents[index];
-		const auto& oldPos = OldPositions[index];
+		auto& oldPos = OldPositions[index];
 
 		if (pAgent) {
 			// Register Neighbors
 #ifndef GAMEAI_USE_SPACE_PARTITIONING
 			RegisterNeighbors(pAgent);
 #else
-			
-			m_pPartitionedSpace->UpdateAgentCell(*pAgent, oldPos); // This occuring before Trim would cause crash, but the trim is not handled here???
+			m_pPartitionedSpace->UpdateAgentCell(*pAgent, oldPos);
 			m_pPartitionedSpace->RegisterNeighbors(*pAgent, NeighborhoodRadius);
 #endif
 			pAgent->Tick(DeltaTime);
+
+			// Update Old Pos
+			oldPos = Agents[index]->GetPosition();
+
+			// Trim
+			if (oldPos.X > WorldSize)		oldPos.X -= (WorldSize * 2);
+			else if (oldPos.X <= -WorldSize) oldPos.X += (WorldSize * 2);
+			if (oldPos.Y > WorldSize)		oldPos.Y -= (WorldSize * 2);
+			else if (oldPos.Y <= -WorldSize) oldPos.Y += (WorldSize * 2);
 		}
 	}
 
 	// TODO: trim the agent to the world ?
-
-#ifdef GAMEAI_USE_SPACE_PARTITIONING
-	// Update Old Positions
-	//std::transform(Agents.begin(), Agents.end(), OldPositions.begin(),
-	//	[](const ASteeringAgent* const agent) { return agent->GetPosition(); });
-	for (int index{}; index < Agents.Num(); ++index) {
-		OldPositions[index] = Agents[index]->GetPosition();
-	}
-#endif
 }
 
 void Flock::RenderDebug()

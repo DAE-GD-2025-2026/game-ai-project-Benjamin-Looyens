@@ -64,22 +64,38 @@ void CellSpace::AddAgent(ASteeringAgent& Agent)
 void CellSpace::UpdateAgentCell(ASteeringAgent& Agent, const FVector2D& OldPos)
 {
 	const int oldIndex = PositionToIndex(OldPos);
-	const int newIndex = PositionToIndex(Agent.GetPosition());
+	
+	// HACK : incredibly stupid work around
+	// but the Tick -> Trimworld order cant be changed
+	const float appliedWidth = (SpaceWidth / 2);
+	const float appliedHeight = (SpaceHeight / 2);
+	FVector2D curPos = Agent.GetPosition();
+	if (curPos.X > appliedWidth) curPos.X -= SpaceWidth;
+	else if (curPos.X <= -appliedWidth) curPos.X += SpaceWidth;
+	if (curPos.Y > appliedHeight)	curPos.Y -= SpaceHeight;
+	else if (curPos.Y <= -appliedHeight) curPos.Y += SpaceHeight;
 
-	if (oldIndex == newIndex) return;
-	if (newIndex >= Cells.size() || newIndex < 0) return;
-	if (oldIndex >= Cells.size() || oldIndex < 0) return;
+	const int newIndex = PositionToIndex(curPos);
+
+	if (oldIndex == newIndex) {
+		//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, FString::Printf(TEXT("Indexes are identical [%d]"), oldIndex));
+		return;
+	}
+	if (newIndex >= Cells.size() || newIndex < 0) {
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Blue, FString::Printf(TEXT("newIndex is out of bounds with oldIndex [%d]"), oldIndex));
+		return;
+	}
+	if (oldIndex >= Cells.size() || oldIndex < 0) {
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, FString::Printf(TEXT("oldIndex is out of bounds with newIndex [%d]"), newIndex));
+		return;
+	}
+
 	// TODO : Fix the border issue
 	//		  Essentially, I think the old position is being set before thee trim world trims it
 	//		  Thus, the position is outside the bounds and cannot be removed correctly
 
-	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("Attempted to remove agent from [%d] and add to [%d]"), oldIndex, newIndex));
-	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Blue, FString::Printf(TEXT("(old) Cell [%d] has [%d] agents before attempt"), oldIndex, Cells[oldIndex].Agents.size()));
-	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Blue, FString::Printf(TEXT("(new) Cell [%d] has [%d] agents before attempt"), newIndex, Cells[newIndex].Agents.size()));
 	Cells[oldIndex].Agents.remove(&Agent);
 	Cells[newIndex].Agents.push_back(&Agent);
-	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, FString::Printf(TEXT("(old) Cell [%d] has [%d] agents after attempt"), oldIndex, Cells[oldIndex].Agents.size()));
-	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, FString::Printf(TEXT("(new) Cell [%d] has [%d] agents after attempt"), newIndex, Cells[newIndex].Agents.size()));
 }
 
 void CellSpace::RegisterNeighbors(ASteeringAgent& Agent, float QueryRadius)
