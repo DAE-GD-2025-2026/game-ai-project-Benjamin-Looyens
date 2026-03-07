@@ -56,7 +56,7 @@ CellSpace::CellSpace(UWorld* pWorld, float Width, float Height, int Rows, int Co
 
 void CellSpace::AddAgent(ASteeringAgent& Agent)
 {
-	// TODO Add the agent to the correct cell
+	// MAYB : Ensure index is correct
 	const int indexToAdd = PositionToIndex(Agent.GetPosition());
 	Cells[indexToAdd].Agents.push_back(&Agent);
 }
@@ -90,10 +90,6 @@ void CellSpace::UpdateAgentCell(ASteeringAgent& Agent, const FVector2D& OldPos)
 		return;
 	}
 
-	// TODO : Fix the border issue
-	//		  Essentially, I think the old position is being set before thee trim world trims it
-	//		  Thus, the position is outside the bounds and cannot be removed correctly
-
 	Cells[oldIndex].Agents.remove(&Agent);
 	Cells[newIndex].Agents.push_back(&Agent);
 }
@@ -102,6 +98,26 @@ void CellSpace::RegisterNeighbors(ASteeringAgent& Agent, float QueryRadius)
 {
 	// TODO Register the neighbors for the provided agent
 	// TODO Only check the cells that are within the radius of the neighborhood
+
+	NrOfNeighbors = 0;
+
+	const FVector2D& pos = Agent.GetPosition();
+
+	const FRect neighborBounds{ { pos.X - QueryRadius, pos.Y - QueryRadius },
+								{ pos.X + QueryRadius, pos.Y + QueryRadius } };
+
+	for (const auto& cell : Cells) {
+		if (!DoRectsOverlap(cell.BoundingBox, neighborBounds)) continue;
+			
+		for (const auto& pOtherAgent : cell.Agents) {
+			if (NrOfNeighbors >= Neighbors.Num()) break;
+
+			if (!pOtherAgent || pOtherAgent == &Agent) continue;
+			if (FVector2D::DistSquared(pos, pOtherAgent->GetPosition()) > FMath::Square(QueryRadius)) continue;
+
+			Neighbors[NrOfNeighbors++] = pOtherAgent;
+		}
+	}
 }
 
 void CellSpace::EmptyCells()
@@ -115,18 +131,24 @@ void CellSpace::RenderCells() const
 	// TODO Render the cells with the number of agents inside of it
 
 	for (const auto& cell : Cells) {
-		const FVector A(cell.BoundingBox.Min.X, cell.BoundingBox.Min.Y, 10.0f);
-		const FVector B(cell.BoundingBox.Max.X, cell.BoundingBox.Min.Y, 10.0f);
-		const FVector C(cell.BoundingBox.Max.X, cell.BoundingBox.Max.Y, 10.0f);
-		const FVector D(cell.BoundingBox.Min.X, cell.BoundingBox.Max.Y, 10.0f);
-
-		DrawDebugLine(pWorld, A, B, FColor::Black, false);
-		DrawDebugLine(pWorld, B, C, FColor::Black, false);
-		DrawDebugLine(pWorld, C, D, FColor::Black, false);
-		DrawDebugLine(pWorld, D, A, FColor::Black, false);
+		DrawRect(cell.BoundingBox);
 
 		const FVector textLocation{ cell.BoundingBox.Min.X + (CellWidth / 2), cell.BoundingBox.Min.Y + (CellHeight / 2), 20.0f };
 		DrawDebugString(pWorld, textLocation, FString::Printf(TEXT("%d"), cell.Agents.size()), 0, FColor::Blue, 0);
+	}
+}
+
+void CellSpace::RenderActiveCellsForAgent(const ASteeringAgent& agent, float QueryRadius) const
+{
+	const FVector2D& pos = agent.GetPosition();
+
+	const FRect neighborBounds{ { pos.X - QueryRadius, pos.Y - QueryRadius },
+								{ pos.X + QueryRadius, pos.Y + QueryRadius } };
+
+	for (const auto& cell : Cells) {
+		if (!DoRectsOverlap(cell.BoundingBox, neighborBounds)) continue;
+
+		DrawRect(cell.BoundingBox, FColor::Green, 0.1f);
 	}
 }
 
@@ -155,7 +177,7 @@ int CellSpace::PositionToIndex(FVector2D const & Pos) const
 	return index;
 }
 
-bool CellSpace::DoRectsOverlap(FRect const & RectA, FRect const & RectB)
+bool CellSpace::DoRectsOverlap(FRect const & RectA, FRect const & RectB) const
 {
 	// Check if the rectangles are separated on either axis
 	if (RectA.Max.X < RectB.Min.X || RectA.Min.X > RectB.Max.X) return false;
@@ -163,4 +185,17 @@ bool CellSpace::DoRectsOverlap(FRect const & RectA, FRect const & RectB)
     
 	// If they are not separated, they must overlap
 	return true;
+}
+
+void CellSpace::DrawRect(const FRect& rect, const FColor& color, float heightOffset) const
+{
+	const FVector A(rect.Min.X, rect.Min.Y, 10.0f + heightOffset);
+	const FVector B(rect.Max.X, rect.Min.Y, 10.0f + heightOffset);
+	const FVector C(rect.Max.X, rect.Max.Y, 10.0f + heightOffset);
+	const FVector D(rect.Min.X, rect.Max.Y, 10.0f + heightOffset);
+
+	DrawDebugLine(pWorld, A, B, color, false);
+	DrawDebugLine(pWorld, B, C, color, false);
+	DrawDebugLine(pWorld, C, D, color, false);
+	DrawDebugLine(pWorld, D, A, color, false);
 }

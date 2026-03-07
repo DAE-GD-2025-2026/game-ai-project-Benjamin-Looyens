@@ -163,6 +163,8 @@ void Flock::RenderDebug()
 
 #ifdef GAMEAI_USE_SPACE_PARTITIONING
 	if (DebugRenderPartitions) m_pPartitionedSpace->RenderCells();
+
+	if (DebugRenderPartitions && DebugRenderNeighborhood) m_pPartitionedSpace->RenderActiveCellsForAgent(*(Agents[0]), NeighborhoodRadius);
 #endif
 }
 

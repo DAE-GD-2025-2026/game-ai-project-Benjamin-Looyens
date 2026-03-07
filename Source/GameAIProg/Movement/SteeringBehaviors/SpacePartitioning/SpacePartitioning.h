@@ -44,6 +44,7 @@ public:
 	//empties the cells of entities
 	void EmptyCells();
 	void RenderCells()const;
+	void RenderActiveCellsForAgent(const ASteeringAgent& agent, float QueryRadius) const;
 
 private:
 	// For debug draw purposes
@@ -68,5 +69,6 @@ private:
 
 	// Helper functions
 	int PositionToIndex(FVector2D const & Pos) const;
-	bool DoRectsOverlap(FRect const& RectA, FRect const& RectB);
+	bool DoRectsOverlap(FRect const& RectA, FRect const& RectB) const;
+	void DrawRect(const FRect& rect, const FColor& color = FColor::Black, float heightOffset = 0.0f) const;
 };
