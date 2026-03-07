@@ -88,7 +88,9 @@ Flock::Flock(
 #ifndef GAMEAI_USE_SPACE_PARTITIONING
 	Neighbors.SetNum(MAX_NEIGHBORS); // TODO : Replace with equivalent for partitioning
 #else
-
+	for (int index{}; index < Agents.Num(); ++index) {
+		OldPositions[index] = Agents[index]->GetPosition();
+	}
 #endif
 }
 
@@ -103,12 +105,18 @@ void Flock::Tick(float DeltaTime)
 	m_pEvadeBehavior->SetTarget(pAgentToEvade->CreateTarget());
 
 	// Update Flock Agents
-	for (const auto& pAgent : Agents) {
+	//for (const auto& pAgent : Agents) {
+	for (int index{}; index < Agents.Num(); index++) {
+		const auto& pAgent = Agents[index];
+		const auto& oldPos = OldPositions[index];
+
 		if (pAgent) {
 			// Register Neighbors
 #ifndef GAMEAI_USE_SPACE_PARTITIONING
 			RegisterNeighbors(pAgent);
 #else
+			
+			m_pPartitionedSpace->UpdateAgentCell(*pAgent, oldPos); // This occuring before Trim would cause crash, but the trim is not handled here???
 			m_pPartitionedSpace->RegisterNeighbors(*pAgent, NeighborhoodRadius);
 #endif
 			pAgent->Tick(DeltaTime);
