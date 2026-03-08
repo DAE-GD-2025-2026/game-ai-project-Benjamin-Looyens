@@ -30,12 +30,12 @@ Flock::Flock(
 	m_pCohesionBehavior = std::make_unique<Cohesion>(this);
 	m_pVelMatchBehavior = std::make_unique<VelocityMatch>(this);
 
-	std::vector<BlendedSteering::WeightedBehavior> weightedBehaviors{			 // Numbers with good results:
-		BlendedSteering::WeightedBehavior{ m_pSeekBehavior.get(), 0.2f },		 // 0.27 Seek
-		BlendedSteering::WeightedBehavior{ m_pCohesionBehavior.get(), 0.2f },	 // 0.24 Cohesion
-		BlendedSteering::WeightedBehavior{ m_pSeparationBehavior.get(), 0.2f },	 // 0.43 Separation
-		BlendedSteering::WeightedBehavior{ m_pVelMatchBehavior.get(), 0.2f },	 // 0.2 VelMatcvh
-		BlendedSteering::WeightedBehavior{ m_pWanderBehavior.get(), 0.2f },		 // 0.24 wander
+	std::vector<BlendedSteering::WeightedBehavior> weightedBehaviors{
+		BlendedSteering::WeightedBehavior{ m_pSeekBehavior.get(),		s_STARTING_SEEK },
+		BlendedSteering::WeightedBehavior{ m_pCohesionBehavior.get(),	s_STARTING_COHESION },
+		BlendedSteering::WeightedBehavior{ m_pSeparationBehavior.get(), s_STARTING_SEPARATION },
+		BlendedSteering::WeightedBehavior{ m_pVelMatchBehavior.get(),	s_STARTING_VEL_MATCH },
+		BlendedSteering::WeightedBehavior{ m_pWanderBehavior.get(),		s_STARTING_VEL_WANDER },
 	};
 	
 	m_pBlendedSteering = std::make_unique<BlendedSteering>(weightedBehaviors);

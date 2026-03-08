@@ -74,4 +74,11 @@ private:
 	bool UsePartitioning{ true };
 
 	void RenderNeighborhood();
+
+	// Default Behavior Weights
+	static constexpr float s_STARTING_SEEK = 0.27f;
+	static constexpr float s_STARTING_COHESION = 0.24f;
+	static constexpr float s_STARTING_SEPARATION = 0.5f;
+	static constexpr float s_STARTING_VEL_MATCH = 0.2f;
+	static constexpr float s_STARTING_VEL_WANDER = 0.25f;
 };
