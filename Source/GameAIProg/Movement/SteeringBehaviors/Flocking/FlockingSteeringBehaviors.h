@@ -30,6 +30,8 @@ public:
 
 private:
 	Flock* pFlock = nullptr;
+
+	FVector2D m_CurSeparationDirection{ FVector2D::ZeroVector };
 };
 
 //VELOCITY MATCH - FLOCKING

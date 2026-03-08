@@ -53,12 +53,21 @@ SteeringOutput Separation::CalculateSteering(float deltaT, ASteeringAgent& Agent
 		steering.LinearVelocity += fromNeighbor / sqrDist;
 	}
 
+	m_CurSeparationDirection = steering.LinearVelocity;
+
 	steering.LinearVelocity.Normalize();
 	return steering;
 }
 void Separation::DebugRender(ASteeringAgent& Agent)
 {
-	// TODO : Separation Debug Render
+	constexpr FColor SEPARATION_DIR_COLOR{ 45, 200, 0 };
+
+	UWorld* pWorld = Agent.GetWorld();
+	const double agentZ = Agent.GetActorLocation().Z - 85.0;
+
+	if (m_CurSeparationDirection.SquaredLength() > 0.0) {
+		DrawDebugLine(pWorld, FVector{ Agent.GetPosition(), agentZ }, FVector{ Agent.GetPosition() + m_CurSeparationDirection, agentZ }, SEPARATION_DIR_COLOR);
+	}
 }
 
 //*************************
@@ -75,5 +84,13 @@ SteeringOutput VelocityMatch::CalculateSteering(float deltaT, ASteeringAgent& Ag
 }
 void VelocityMatch::DebugRender(ASteeringAgent& Agent) 
 {
-	// TODO : velocity match debug render somehow?
+	constexpr FColor AVG_VELOCITY_COLOR{ 110, 180, 90 };
+
+	UWorld* pWorld = Agent.GetWorld();
+	const double agentZ = Agent.GetActorLocation().Z - 85.0;
+
+	const FVector2D averageVel = pFlock->GetAverageNeighborVelocity();
+	if (averageVel.SquaredLength() > 0.0) {
+		DrawDebugLine(pWorld, FVector{ Agent.GetPosition(), agentZ }, FVector{ Agent.GetPosition() + averageVel, agentZ }, AVG_VELOCITY_COLOR);
+	}
 }

@@ -49,6 +49,7 @@ Flock::Flock(
 
 	// HACK : Feels very wrong to give the behavior of the agent to evade here
 	pAgentToEvade->SetSteeringBehavior(m_pWanderBehavior.get());
+	pAgentToEvade->SetDebugRenderingEnabled(DebugRenderSteering);
 
 	// Initialize Flock
 	float appliedWorld = WorldSize / 2;
@@ -75,7 +76,7 @@ Flock::Flock(
 
 		if (IsValid(pAgent)) {
 			Agents[index] = pAgent;
-			pAgent->SetDebugRenderingEnabled(false);
+			pAgent->SetDebugRenderingEnabled(DebugRenderSteering);
 			pAgent->SetActorTickEnabled(false);
 			pAgent->SetSteeringBehavior(m_pPrioritySteering.get());
 
