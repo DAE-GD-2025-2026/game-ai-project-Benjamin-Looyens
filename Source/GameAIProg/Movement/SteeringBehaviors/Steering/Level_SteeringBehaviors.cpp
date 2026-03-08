@@ -6,6 +6,7 @@
 #include <string>
 #include "imgui.h"
 
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 ALevel_SteeringBehaviors::ALevel_SteeringBehaviors()
@@ -62,6 +63,18 @@ void ALevel_SteeringBehaviors::Tick(float DeltaTime)
 	ImGui::Spacing();
 	ImGui::Spacing();
 	
+	ImGui::Text("Other Levels");
+	ImGui::Spacing();
+	ImGui::Spacing();
+
+	if (ImGui::Button("Combined Steering", ImVec2(-FLT_MIN, 0))) UGameplayStatics::OpenLevel(this, FName("CombinedSteering_Sandbox"));
+	if (ImGui::Button("Flocking", ImVec2(-FLT_MIN, 0))) UGameplayStatics::OpenLevel(this, FName("Flocking_Sandbox"));
+
+	ImGui::Spacing();
+	ImGui::Separator();
+	ImGui::Spacing();
+	ImGui::Spacing();
+
 	ImGui::Text("Steering Behaviors");
 	ImGui::Spacing();
 	ImGui::Spacing();
