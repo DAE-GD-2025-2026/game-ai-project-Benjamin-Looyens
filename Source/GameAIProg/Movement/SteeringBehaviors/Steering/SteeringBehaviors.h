@@ -98,10 +98,11 @@ public:
 
 	virtual SteeringOutput CalculateSteering(float DeltaT, ASteeringAgent& Agent) override;
 	virtual void DebugRender(ASteeringAgent& Agent) override;
-	// TODO : Perhaps store a color inside pursuit as protected, and when creating evade, change that color so that in the debug render its not the same
+	void SetEvadeRadius(float newRadius) { m_EvasionRadius = newRadius; };
+	// MAYB : Perhaps store a color inside pursuit as protected, and when creating evade, change that color so that in the debug render its not the same
 
 private:
-	float m_EvasionRadius = 700.0f; // TODO : perhaps control for the radius after creation
+	float m_EvasionRadius = 700.0f;
 };
 
 // Wander Behavior

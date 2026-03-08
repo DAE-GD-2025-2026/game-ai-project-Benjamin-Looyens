@@ -48,8 +48,13 @@ CellSpace::CellSpace(UWorld* pWorld, float Width, float Height, int Rows, int Co
 
 void CellSpace::AddAgent(ASteeringAgent& Agent)
 {
-	// MAYB : Ensure index is correct
 	const int indexToAdd = PositionToIndex(Agent.GetPosition());
+
+	if (indexToAdd >= Cells.size()) {
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Agent that is being attempted to be added to cells is out of bounds!"));
+		return;
+	}
+
 	Cells[indexToAdd].Agents.push_back(&Agent);
 }
 

@@ -122,7 +122,6 @@ SteeringOutput Face::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 
 void Face::DebugRender(ASteeringAgent& Agent)
 {
-	// TODO : Face Debug Render
 }
 
 // Pursuit Behavior

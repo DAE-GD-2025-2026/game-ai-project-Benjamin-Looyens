@@ -91,7 +91,7 @@ Flock::Flock(
 
 Flock::~Flock()
 {
-	// TODO: Cleanup any additional data
+	// Dont think we need to clear up anything
 }
 
 void Flock::Tick(float DeltaTime)
