@@ -18,7 +18,8 @@ Flock::Flock(
 	Agents.SetNum(FlockSize);
 	
 #ifdef GAMEAI_USE_SPACE_PARTITIONING
-	OldPositions.SetNum(FlockSize);
+	//OldPositions.SetNum(FlockSize);
+	m_PrevPosIndices.SetNum(FlockSize);
 
 	m_pPartitionedSpace = std::make_unique<CellSpace>(pWorld, WorldSize * 2, WorldSize * 2, NrOfCellsX, NrOfCellsX, 20); // 20 Max Neighbors?
 #endif
@@ -89,9 +90,9 @@ Flock::Flock(
 #ifndef GAMEAI_USE_SPACE_PARTITIONING
 	Neighbors.SetNum(MAX_NEIGHBORS); // TODO : Replace with equivalent for partitioning
 #else
-	for (int index{}; index < Agents.Num(); ++index) {
-		OldPositions[index] = Agents[index]->GetPosition();
-	}
+	//for (int index{}; index < Agents.Num(); ++index) {
+	//	OldPositions[index] = Agents[index]->GetPosition();
+	//}
 #endif
 }
 
@@ -109,26 +110,28 @@ void Flock::Tick(float DeltaTime)
 	//for (const auto& pAgent : Agents) {
 	for (int index{}; index < Agents.Num(); index++) {
 		const auto& pAgent = Agents[index];
-		auto& oldPos = OldPositions[index];
+		//auto& oldPos = OldPositions[index];
+		int& oldIndex = m_PrevPosIndices[index];
 
 		if (pAgent) {
 			// Register Neighbors
 #ifndef GAMEAI_USE_SPACE_PARTITIONING
 			RegisterNeighbors(pAgent);
 #else
-			m_pPartitionedSpace->UpdateAgentCell(*pAgent, oldPos);
+			//m_pPartitionedSpace->UpdateAgentCell(*pAgent, oldPos);
+			m_pPartitionedSpace->UpdateAgentCell(*pAgent, oldIndex);
 			m_pPartitionedSpace->RegisterNeighbors(*pAgent, NeighborhoodRadius);
 #endif
 			pAgent->Tick(DeltaTime);
 
-			// Update Old Pos
-			oldPos = Agents[index]->GetPosition();
-
-			// Trim
-			if (oldPos.X > WorldSize)		oldPos.X -= (WorldSize * 2);
-			else if (oldPos.X <= -WorldSize) oldPos.X += (WorldSize * 2);
-			if (oldPos.Y > WorldSize)		oldPos.Y -= (WorldSize * 2);
-			else if (oldPos.Y <= -WorldSize) oldPos.Y += (WorldSize * 2);
+			//// Update Old Pos
+			//oldPos = Agents[index]->GetPosition();
+			//
+			//// Trim
+			//if (oldPos.X > WorldSize)		oldPos.X -= (WorldSize * 2);
+			//else if (oldPos.X <= -WorldSize) oldPos.X += (WorldSize * 2);
+			//if (oldPos.Y > WorldSize)		oldPos.Y -= (WorldSize * 2);
+			//else if (oldPos.Y <= -WorldSize) oldPos.Y += (WorldSize * 2);
 		}
 	}
 

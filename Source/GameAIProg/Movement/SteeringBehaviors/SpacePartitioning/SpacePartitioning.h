@@ -35,7 +35,8 @@ public:
 	CellSpace(UWorld* pWorld, float Width, float Height, int Rows, int Cols, int MaxEntities);
 
 	void AddAgent(ASteeringAgent& Agent);
-	void UpdateAgentCell(ASteeringAgent& Agent, const FVector2D& OldPos);
+	//void UpdateAgentCell(ASteeringAgent& Agent, const FVector2D& OldPos);
+	void UpdateAgentCell(ASteeringAgent& Agent, int& OldIndex_INOUT);
 
 	void RegisterNeighbors(ASteeringAgent& Agent, float QueryRadius);
 	const TArray<ASteeringAgent*>& GetNeighbors() const { return Neighbors; }

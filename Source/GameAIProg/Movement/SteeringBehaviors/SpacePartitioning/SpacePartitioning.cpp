@@ -61,37 +61,40 @@ void CellSpace::AddAgent(ASteeringAgent& Agent)
 	Cells[indexToAdd].Agents.push_back(&Agent);
 }
 
-void CellSpace::UpdateAgentCell(ASteeringAgent& Agent, const FVector2D& OldPos)
+void CellSpace::UpdateAgentCell(ASteeringAgent& Agent, int& OldIndex_INOUT)
+//void CellSpace::UpdateAgentCell(ASteeringAgent& Agent, const FVector2D& OldPos)
 {
-	const int oldIndex = PositionToIndex(OldPos);
+	//const int oldIndex = PositionToIndex(OldPos);
 	
 	// HACK : incredibly stupid work around
 	// but the Tick -> Trimworld order cant be changed
 	const float appliedWidth = (SpaceWidth / 2);
 	const float appliedHeight = (SpaceHeight / 2);
 	FVector2D curPos = Agent.GetPosition();
-	if (curPos.X > appliedWidth) curPos.X -= SpaceWidth;
-	else if (curPos.X <= -appliedWidth) curPos.X += SpaceWidth;
-	if (curPos.Y > appliedHeight)	curPos.Y -= SpaceHeight;
-	else if (curPos.Y <= -appliedHeight) curPos.Y += SpaceHeight;
+	if (curPos.X > appliedWidth)			curPos.X -= SpaceWidth;
+	else if (curPos.X <= -appliedWidth)		curPos.X += SpaceWidth;
+	if (curPos.Y > appliedHeight)			curPos.Y -= SpaceHeight;
+	else if (curPos.Y <= -appliedHeight)	curPos.Y += SpaceHeight;
 
 	const int newIndex = PositionToIndex(curPos);
 
-	if (oldIndex == newIndex) {
+	if (OldIndex_INOUT == newIndex) {
 		//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, FString::Printf(TEXT("Indexes are identical [%d]"), oldIndex));
 		return;
 	}
 	if (newIndex >= Cells.size() || newIndex < 0) {
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Blue, FString::Printf(TEXT("newIndex is out of bounds with oldIndex [%d]"), oldIndex));
+		//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Blue, FString::Printf(TEXT("newIndex is out of bounds with oldIndex [%d]"), oldIndex));
 		return;
 	}
-	if (oldIndex >= Cells.size() || oldIndex < 0) {
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, FString::Printf(TEXT("oldIndex is out of bounds with newIndex [%d]"), newIndex));
+	if (OldIndex_INOUT >= Cells.size() || OldIndex_INOUT < 0) {
+		//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, FString::Printf(TEXT("oldIndex is out of bounds with newIndex [%d]"), newIndex));
 		return;
 	}
 
-	Cells[oldIndex].Agents.remove(&Agent);
+	Cells[OldIndex_INOUT].Agents.remove(&Agent);
 	Cells[newIndex].Agents.push_back(&Agent);
+
+	OldIndex_INOUT = newIndex; // Update Prev Index
 }
 
 void CellSpace::RegisterNeighbors(ASteeringAgent& Agent, float QueryRadius)
