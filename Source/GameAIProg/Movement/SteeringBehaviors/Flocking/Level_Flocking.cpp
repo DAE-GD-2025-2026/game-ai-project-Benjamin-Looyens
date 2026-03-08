@@ -30,6 +30,9 @@ void ALevel_Flocking::BeginPlay()
 			pAgentToEvade,
 			true)
 	);
+
+	// Set Unique Material
+	if (AvoidMaterial) pAgentToEvade->GetMesh()->SetMaterial(0, AvoidMaterial);
 }
 
 // Called every frame

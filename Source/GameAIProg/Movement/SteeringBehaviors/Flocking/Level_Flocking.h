@@ -29,4 +29,7 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Category = "Flocking")
 	ASteeringAgent* pAgentToEvade{nullptr}; // non owning ref
+
+	UPROPERTY(EditAnywhere, Category = "Materials")
+	UMaterial* AvoidMaterial{ nullptr };
 };
