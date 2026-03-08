@@ -116,22 +116,6 @@ void Flock::Tick(float DeltaTime)
 
 void Flock::RenderDebug()
 {
-	if (DebugRenderSteering) {
-		if (DebugRenderOnlyFirstAgent && Agents[0]) {
-			RegisterNeighbors(Agents[0]);
-
-			m_pPrioritySteering->DebugRender(*(Agents[0]));
-		}
-		else {
-			for (const auto& pAgent : Agents) {
-				if (pAgent) {
-					RegisterNeighbors(pAgent);
-
-					m_pPrioritySteering->DebugRender(*pAgent);
-				}
-			}
-		}
-	}
 	if (DebugRenderNeighborhood) RenderNeighborhood();
 
 	if (UsePartitioning) {
@@ -180,8 +164,27 @@ void Flock::ImGuiRender(ImVec2 const& WindowPos, ImVec2 const& WindowSize)
 		ImGui::Spacing();
 
 		ImGui::Checkbox("Render Neighbors (Actor 0)", &DebugRenderNeighborhood);
-		ImGui::Checkbox("Debug Render Steering", &DebugRenderSteering);
-		ImGui::Checkbox("Debug Render Only Agent 0", &DebugRenderOnlyFirstAgent);
+		
+		if (ImGui::Checkbox("Debug Render Steering", &DebugRenderSteering)) {
+			pAgentToEvade->SetDebugRenderingEnabled(DebugRenderSteering);
+
+			if (DebugRenderOnlyFirstAgent && DebugRenderSteering) {
+				for (const auto& pAgent : Agents) pAgent->SetDebugRenderingEnabled(false);
+				Agents[0]->SetDebugRenderingEnabled(DebugRenderSteering);
+			}
+			else {
+				for (const auto& pAgent : Agents) pAgent->SetDebugRenderingEnabled(DebugRenderSteering);
+			}
+		}
+		if (ImGui::Checkbox("Debug Render Only Agent 0", &DebugRenderOnlyFirstAgent)) {
+			if (DebugRenderSteering && DebugRenderOnlyFirstAgent) {
+				for (const auto& pAgent : Agents) pAgent->SetDebugRenderingEnabled(false);
+				Agents[0]->SetDebugRenderingEnabled(DebugRenderOnlyFirstAgent);
+			}
+			else {
+				for (const auto& pAgent : Agents) pAgent->SetDebugRenderingEnabled(DebugRenderSteering);
+			}
+		}
 
 		ImGui::Text("Spatial Partitioning");
 		ImGui::Spacing();
