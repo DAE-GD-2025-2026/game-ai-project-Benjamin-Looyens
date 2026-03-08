@@ -17,6 +17,7 @@ Project that implements Game AI patterns including:
     - Cohesion (stays closer to nearby agents)
     - Velocity Matching (moves in the same direction as nearby agents)
     - Avoids singular "outsider" agent
+![simpleflock](https://github.com/user-attachments/assets/059a5762-bd2f-4812-a653-bf7f919d9e9e)
 - Spatial Partitioning
     - Divided square area evenly into partitions, which stores references to agents
     - Agents that move from one partition to another get cleanly removed and added
