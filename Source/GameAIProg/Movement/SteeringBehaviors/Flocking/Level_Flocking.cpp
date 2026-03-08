@@ -16,7 +16,7 @@ void ALevel_Flocking::BeginPlay()
 {
 	Super::BeginPlay();
 
-	TrimWorld->SetTrimWorldSize(1200.0f); // TODO : Check if trim world is correct (provided number of 3000.0f was outside of the play area?)
+	TrimWorld->SetTrimWorldSize(1550.0f); // TODO : Check if trim world is correct (provided number of 3000.0f was outside of the play area?)
 	TrimWorld->bShouldTrimWorld = true;
 
 	pAgentToEvade = GetWorld()->SpawnActor<ASteeringAgent>(SteeringAgentClass, FVector{ 0, 0, 90 }, FRotator::ZeroRotator);
