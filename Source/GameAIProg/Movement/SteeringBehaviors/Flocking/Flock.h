@@ -1,17 +1,12 @@
 ﻿#pragma once
 
-// Toggle this define to enable/disable spatial partitioning
-#define GAMEAI_USE_SPACE_PARTITIONING
-
 #include "FlockingSteeringBehaviors.h"
 #include "Movement/SteeringBehaviors/SteeringAgent.h"
 #include "Movement/SteeringBehaviors/SteeringHelpers.h"
 #include "Movement/SteeringBehaviors/CombinedSteering/CombinedSteeringBehaviors.h"
 #include <memory>
 #include "imgui.h"
-#ifdef GAMEAI_USE_SPACE_PARTITIONING
 #include "../SpacePartitioning/SpacePartitioning.h"
-#endif
 
 class Flock final
 {
@@ -30,14 +25,9 @@ public:
 	void RenderDebug();
 	void ImGuiRender(ImVec2 const& WindowPos, ImVec2 const& WindowSize);
 
-#ifdef GAMEAI_USE_SPACE_PARTITIONING
-	const TArray<ASteeringAgent*>& GetNeighbors() const { return m_pPartitionedSpace->GetNeighbors(); }
-	int GetNrOfNeighbors() const { return m_pPartitionedSpace->GetNrOfNeighbors(); }
-#else // No space partitioning
 	void RegisterNeighbors(ASteeringAgent* const Agent);
 	int GetNrOfNeighbors() const { return NrOfNeighbors; }
 	const TArray<ASteeringAgent*>& GetNeighbors() const { return Neighbors; }
-#endif // USE_SPACE_PARTITIONING
 
 	FVector2D GetAverageNeighborPos() const;
 	FVector2D GetAverageNeighborVelocity() const;
@@ -48,22 +38,21 @@ private:
 	// For debug rendering purposes
 	UWorld* pWorld{nullptr};
 	
+	// Core Flock
 	int FlockSize{0};
 	float WorldSize{0};
 	TArray<ASteeringAgent*> Agents{};
-#ifdef GAMEAI_USE_SPACE_PARTITIONING
+	
+	// Neighborhood
+	TArray<ASteeringAgent*> Neighbors{};
+	int NrOfNeighbors{0};
+	float NeighborhoodRadius{200.f};
+	
+	// Spatial Partitioning
 	std::unique_ptr<CellSpace> m_pPartitionedSpace{};
 	int NrOfCellsX{ 10 };
 	TArray<int> m_PrevPosIndices{};
-#else // No space partitioning
-	TArray<ASteeringAgent*> Neighbors{};
-#endif // USE_SPACE_PARTITIONING
-	
-	float NeighborhoodRadius{200.f};
-	int NrOfNeighbors{0};
 
-	ASteeringAgent* pAgentToEvade{nullptr};
-	
 	//Steering Behaviors
 	std::unique_ptr<Separation> m_pSeparationBehavior{};
 	std::unique_ptr<Cohesion> m_pCohesionBehavior{};
@@ -75,11 +64,14 @@ private:
 	std::unique_ptr<BlendedSteering> m_pBlendedSteering{};
 	std::unique_ptr<PrioritySteering> m_pPrioritySteering{};
 
+	ASteeringAgent* pAgentToEvade{nullptr};
+
 	// UI and rendering
 	bool DebugRenderSteering{false};
 	bool DebugRenderNeighborhood{true};
 	bool DebugRenderPartitions{true};
 	bool DebugRenderOnlyFirstAgent{true};
+	bool UsePartitioning{ true };
 
 	void RenderNeighborhood();
 };

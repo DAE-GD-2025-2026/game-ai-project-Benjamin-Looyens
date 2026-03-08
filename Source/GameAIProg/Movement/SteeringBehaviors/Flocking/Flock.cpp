@@ -15,15 +15,12 @@ Flock::Flock(
 	, pAgentToEvade{ pAgentToEvade }
 	, WorldSize{ WorldSize }
 {
-	constexpr int MAX_NEIGHBORS = 20;
-
+	// Initialize Agent Data
 	Agents.SetNum(FlockSize);
-	
-#ifdef GAMEAI_USE_SPACE_PARTITIONING
 	m_PrevPosIndices.SetNum(FlockSize);
 
-	m_pPartitionedSpace = std::make_unique<CellSpace>(pWorld, WorldSize * 2, WorldSize * 2, NrOfCellsX, NrOfCellsX, MAX_NEIGHBORS);
-#endif
+	// Create Partitions
+	m_pPartitionedSpace = std::make_unique<CellSpace>(pWorld, WorldSize * 2, WorldSize * 2, NrOfCellsX, NrOfCellsX);
 	
 	// Initialize Behaviors
 	m_pSeekBehavior = std::make_unique<Seek>();
@@ -87,9 +84,8 @@ Flock::Flock(
 	}
 
 	// Initialize Memory Pool (Neighbors)
-#ifndef GAMEAI_USE_SPACE_PARTITIONING
+	constexpr int MAX_NEIGHBORS = 20;
 	Neighbors.SetNum(MAX_NEIGHBORS);
-#endif
 }
 
 Flock::~Flock()
@@ -108,13 +104,11 @@ void Flock::Tick(float DeltaTime)
 		int& oldIndex = m_PrevPosIndices[index];
 
 		if (pAgent) {
+			if (UsePartitioning) m_pPartitionedSpace->UpdateAgentCell(*pAgent, oldIndex);
+
 			// Register Neighbors
-#ifndef GAMEAI_USE_SPACE_PARTITIONING
 			RegisterNeighbors(pAgent);
-#else
-			m_pPartitionedSpace->UpdateAgentCell(*pAgent, oldIndex);
-			m_pPartitionedSpace->RegisterNeighbors(*pAgent, NeighborhoodRadius);
-#endif
+
 			pAgent->Tick(DeltaTime);
 		}
 	}
@@ -124,21 +118,15 @@ void Flock::RenderDebug()
 {
 	if (DebugRenderSteering) {
 		if (DebugRenderOnlyFirstAgent && Agents[0]) {
-#ifndef GAMEAI_USE_SPACE_PARTITIONING
 			RegisterNeighbors(Agents[0]);
-#else
-			m_pPartitionedSpace->RegisterNeighbors(*(Agents[0]), NeighborhoodRadius);
-#endif
+
 			m_pPrioritySteering->DebugRender(*(Agents[0]));
 		}
 		else {
 			for (const auto& pAgent : Agents) {
 				if (pAgent) {
-#ifndef GAMEAI_USE_SPACE_PARTITIONING
 					RegisterNeighbors(pAgent);
-#else
-					m_pPartitionedSpace->RegisterNeighbors(*pAgent, NeighborhoodRadius);
-#endif
+
 					m_pPrioritySteering->DebugRender(*pAgent);
 				}
 			}
@@ -146,11 +134,11 @@ void Flock::RenderDebug()
 	}
 	if (DebugRenderNeighborhood) RenderNeighborhood();
 
-#ifdef GAMEAI_USE_SPACE_PARTITIONING
-	if (DebugRenderPartitions) m_pPartitionedSpace->RenderCells();
+	if (UsePartitioning) {
+		if (DebugRenderPartitions) m_pPartitionedSpace->RenderCells();
+		if (DebugRenderPartitions && DebugRenderNeighborhood) m_pPartitionedSpace->RenderActiveCellsForAgent(*(Agents[0]), NeighborhoodRadius);
+	}
 
-	if (DebugRenderPartitions && DebugRenderNeighborhood) m_pPartitionedSpace->RenderActiveCellsForAgent(*(Agents[0]), NeighborhoodRadius);
-#endif
 }
 
 void Flock::ImGuiRender(ImVec2 const& WindowPos, ImVec2 const& WindowSize)
@@ -194,8 +182,12 @@ void Flock::ImGuiRender(ImVec2 const& WindowPos, ImVec2 const& WindowSize)
 		ImGui::Checkbox("Render Neighbors (Actor 0)", &DebugRenderNeighborhood);
 		ImGui::Checkbox("Debug Render Steering", &DebugRenderSteering);
 		ImGui::Checkbox("Debug Render Only Agent 0", &DebugRenderOnlyFirstAgent);
-		ImGui::Checkbox("Debug Render Partitions (Not Implemented)", &DebugRenderPartitions);
-		
+
+		ImGui::Text("Spatial Partitioning");
+		ImGui::Spacing();
+
+		ImGui::Checkbox("Use Partitioning", &UsePartitioning); // Maybe on enable partitioning, register them right away?
+		ImGui::Checkbox("Debug Render Partitions", &DebugRenderPartitions);
 
 		ImGui::Text("Behavior Weights");
 		ImGui::Spacing();
@@ -229,34 +221,24 @@ void Flock::RenderNeighborhood()
 	constexpr FColor NEIGHBORHOOD_COLOR{ 0, 150, 0 };
 	constexpr FColor NEIGHBOR_COLOR{ 0, 255, 0 };
 
-	// HACK : Should this register them?
-#ifndef GAMEAI_USE_SPACE_PARTITIONING
 	RegisterNeighbors(Agents[0]);
-#else
-	m_pPartitionedSpace->RegisterNeighbors(*(Agents[0]), NeighborhoodRadius);
-#endif
 
 	DrawDebugCircle(pWorld, FVector{ Agents[0]->GetPosition(), 30 }, NeighborhoodRadius, 15, NEIGHBORHOOD_COLOR, false, (-1.0f), (uint8)0U, (0.0F), { 1, 0, 0 }, { 0, 1, 0 }, false);
 	DrawDebugPoint(pWorld, FVector{ Agents[0]->GetPosition(), 30 }, 20.0f, SELF_COLOR);
 
-#ifndef GAMEAI_USE_SPACE_PARTITIONING
 	for (int32 index{}; index < NrOfNeighbors; index++) {
-#else
-	for (int32 index{}; index < m_pPartitionedSpace->GetNrOfNeighbors(); index++) {
-#endif
-
-#ifndef GAMEAI_USE_SPACE_PARTITIONING
 		DrawDebugPoint(pWorld, FVector{ Neighbors[index]->GetPosition(), 30 }, 20.0f, NEIGHBOR_COLOR);
-#else
-		DrawDebugPoint(pWorld, FVector{ m_pPartitionedSpace->GetNeighbors()[index]->GetPosition(), 30 }, 20.0f, NEIGHBOR_COLOR);
-#endif
 	}
 }
 
-#ifndef GAMEAI_USE_SPACE_PARTITIONING
 void Flock::RegisterNeighbors(ASteeringAgent* const pAgent)
 {
 	NrOfNeighbors = 0;
+
+	if (UsePartitioning) {
+		m_pPartitionedSpace->RegisterNeighbors(*pAgent, NeighborhoodRadius, Neighbors, NrOfNeighbors);
+		return; // Do Not register again without partitions, so return
+	}
 
 	for (const auto& pOtherAgent : Agents) {
 		if (NrOfNeighbors >= Neighbors.Num()) break;
@@ -268,19 +250,12 @@ void Flock::RegisterNeighbors(ASteeringAgent* const pAgent)
 		}
 	}
 }
-#endif
 
 FVector2D Flock::GetAverageNeighborPos() const
 {
 	if (NrOfNeighbors == 0) return FVector2D::ZeroVector;
 
-
-
-#ifndef GAMEAI_USE_SPACE_PARTITIONING
 	const FVector2D avgPosition = Algo::Accumulate(MakeArrayView(Neighbors).Slice(0, NrOfNeighbors), FVector2D::ZeroVector, 
-#else
-	const FVector2D avgPosition = Algo::Accumulate(MakeArrayView(m_pPartitionedSpace->GetNeighbors()).Slice(0, NrOfNeighbors), FVector2D::ZeroVector, 
-#endif
 		[](const FVector2D& Acc, const ASteeringAgent* pNeighbor) {
 			return Acc + pNeighbor->GetPosition();
 		});
@@ -292,11 +267,7 @@ FVector2D Flock::GetAverageNeighborVelocity() const
 {
 	if (NrOfNeighbors == 0) return FVector2D::ZeroVector;
 
-#ifndef GAMEAI_USE_SPACE_PARTITIONING
 	const FVector2D avgVelocity = Algo::Accumulate(MakeArrayView(Neighbors).Slice(0, NrOfNeighbors), FVector2D::ZeroVector,
-#else
-	const FVector2D avgVelocity = Algo::Accumulate(MakeArrayView(m_pPartitionedSpace->GetNeighbors()).Slice(0, NrOfNeighbors), FVector2D::ZeroVector,
-#endif
 		[](const FVector2D& Acc, const ASteeringAgent* pNeighbor) {
 			return Acc + pNeighbor->GetLinearVelocity();
 		});
@@ -308,4 +279,3 @@ void Flock::SetTarget_Seek(FSteeringParams const& Target)
 {
 	m_pSeekBehavior->SetTarget(Target);
 }
-

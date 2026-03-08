@@ -32,14 +32,12 @@ struct Cell final
 class CellSpace final
 {
 public:
-	CellSpace(UWorld* pWorld, float Width, float Height, int Rows, int Cols, int MaxEntities);
+	CellSpace(UWorld* pWorld, float Width, float Height, int Rows, int Cols);
 
 	void AddAgent(ASteeringAgent& Agent);
 	void UpdateAgentCell(ASteeringAgent& Agent, int& OldIndex_INOUT);
 
-	void RegisterNeighbors(ASteeringAgent& Agent, float QueryRadius);
-	const TArray<ASteeringAgent*>& GetNeighbors() const { return Neighbors; }
-	int GetNrOfNeighbors() const { return NrOfNeighbors; }
+	void RegisterNeighbors(ASteeringAgent& Agent, float QueryRadius, TArray<ASteeringAgent*>& neighbors_OUT, int& nrOfNeighbors_OUT);
 
 	//empties the cells of entities
 	void EmptyCells();
@@ -62,10 +60,6 @@ private:
 
 	float CellWidth;
 	float CellHeight;
-
-	// Members to avoid memory allocation on every frame
-	TArray<ASteeringAgent*> Neighbors;
-	int NrOfNeighbors;
 
 	// Helper functions
 	int PositionToIndex(FVector2D const & Pos) const;

@@ -28,16 +28,13 @@ std::vector<FVector2D> Cell::GetRectPoints() const
 
 // --- Partitioned Space ---
 // -------------------------
-CellSpace::CellSpace(UWorld* pWorld, float Width, float Height, int Rows, int Cols, int MaxEntities)
+CellSpace::CellSpace(UWorld* pWorld, float Width, float Height, int Rows, int Cols)
 	: pWorld{pWorld}
 	, SpaceWidth{Width}
 	, SpaceHeight{Height}
 	, NrOfRows{Rows}
 	, NrOfCols{Cols}
-	, NrOfNeighbors{0}
 {
-	Neighbors.SetNum(MaxEntities);
-	
 	//calculate bounds of a cell
 	CellWidth = Width / Cols;
 	CellHeight = Height / Rows;
@@ -45,13 +42,8 @@ CellSpace::CellSpace(UWorld* pWorld, float Width, float Height, int Rows, int Co
 	// Create Cells
 	Cells.reserve(Rows * Cols);
 	for (int index{}; index < Rows * Cols; index++) {
-		// index / rows
-
 		Cells.emplace_back((index % Rows) * CellWidth - (Width / 2), (index / Cols) * CellHeight - (Height / 2), CellWidth, CellHeight); // Cell(float Left, float Bottom, float Width, float Height);
 	}
-
-	// Initialize Memory Pool
-	Neighbors.SetNum(MaxEntities);
 }
 
 void CellSpace::AddAgent(ASteeringAgent& Agent)
@@ -94,10 +86,8 @@ void CellSpace::UpdateAgentCell(ASteeringAgent& Agent, int& OldIndex_INOUT)
 	OldIndex_INOUT = newIndex; // Update Prev Index
 }
 
-void CellSpace::RegisterNeighbors(ASteeringAgent& Agent, float QueryRadius)
+void CellSpace::RegisterNeighbors(ASteeringAgent& Agent, float QueryRadius, TArray<ASteeringAgent*>& neighbors_OUT, int& nrOfNeighbors_OUT)
 {
-	NrOfNeighbors = 0;
-
 	const FVector2D& pos = Agent.GetPosition();
 
 	const FRect neighborBounds{ { pos.X - QueryRadius, pos.Y - QueryRadius },
@@ -107,12 +97,12 @@ void CellSpace::RegisterNeighbors(ASteeringAgent& Agent, float QueryRadius)
 		if (!DoRectsOverlap(cell.BoundingBox, neighborBounds)) continue;
 			
 		for (const auto& pOtherAgent : cell.Agents) {
-			if (NrOfNeighbors >= Neighbors.Num()) break;
+			if (nrOfNeighbors_OUT >= neighbors_OUT.Num()) break;
 
 			if (!pOtherAgent || pOtherAgent == &Agent) continue;
 			if (FVector2D::DistSquared(pos, pOtherAgent->GetPosition()) > FMath::Square(QueryRadius)) continue;
 
-			Neighbors[NrOfNeighbors++] = pOtherAgent;
+			neighbors_OUT[nrOfNeighbors_OUT++] = pOtherAgent;
 		}
 	}
 }
