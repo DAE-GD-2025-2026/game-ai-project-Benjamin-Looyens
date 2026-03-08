@@ -15,13 +15,14 @@ Flock::Flock(
 	, pAgentToEvade{ pAgentToEvade }
 	, WorldSize{ WorldSize }
 {
+	constexpr int MAX_NEIGHBORS = 20;
+
 	Agents.SetNum(FlockSize);
 	
 #ifdef GAMEAI_USE_SPACE_PARTITIONING
-	//OldPositions.SetNum(FlockSize);
 	m_PrevPosIndices.SetNum(FlockSize);
 
-	m_pPartitionedSpace = std::make_unique<CellSpace>(pWorld, WorldSize * 2, WorldSize * 2, NrOfCellsX, NrOfCellsX, 20); // 20 Max Neighbors?
+	m_pPartitionedSpace = std::make_unique<CellSpace>(pWorld, WorldSize * 2, WorldSize * 2, NrOfCellsX, NrOfCellsX, MAX_NEIGHBORS);
 #endif
 	
 	// Initialize Behaviors
@@ -86,13 +87,8 @@ Flock::Flock(
 	}
 
 	// Initialize Memory Pool (Neighbors)
-	constexpr int MAX_NEIGHBORS = 20;
 #ifndef GAMEAI_USE_SPACE_PARTITIONING
-	Neighbors.SetNum(MAX_NEIGHBORS); // TODO : Replace with equivalent for partitioning
-#else
-	//for (int index{}; index < Agents.Num(); ++index) {
-	//	OldPositions[index] = Agents[index]->GetPosition();
-	//}
+	Neighbors.SetNum(MAX_NEIGHBORS);
 #endif
 }
 
@@ -107,10 +103,8 @@ void Flock::Tick(float DeltaTime)
 	m_pEvadeBehavior->SetTarget(pAgentToEvade->CreateTarget());
 
 	// Update Flock Agents
-	//for (const auto& pAgent : Agents) {
 	for (int index{}; index < Agents.Num(); index++) {
 		const auto& pAgent = Agents[index];
-		//auto& oldPos = OldPositions[index];
 		int& oldIndex = m_PrevPosIndices[index];
 
 		if (pAgent) {
@@ -118,24 +112,12 @@ void Flock::Tick(float DeltaTime)
 #ifndef GAMEAI_USE_SPACE_PARTITIONING
 			RegisterNeighbors(pAgent);
 #else
-			//m_pPartitionedSpace->UpdateAgentCell(*pAgent, oldPos);
 			m_pPartitionedSpace->UpdateAgentCell(*pAgent, oldIndex);
 			m_pPartitionedSpace->RegisterNeighbors(*pAgent, NeighborhoodRadius);
 #endif
 			pAgent->Tick(DeltaTime);
-
-			//// Update Old Pos
-			//oldPos = Agents[index]->GetPosition();
-			//
-			//// Trim
-			//if (oldPos.X > WorldSize)		oldPos.X -= (WorldSize * 2);
-			//else if (oldPos.X <= -WorldSize) oldPos.X += (WorldSize * 2);
-			//if (oldPos.Y > WorldSize)		oldPos.Y -= (WorldSize * 2);
-			//else if (oldPos.Y <= -WorldSize) oldPos.Y += (WorldSize * 2);
 		}
 	}
-
-	// TODO: trim the agent to the world ?
 }
 
 void Flock::RenderDebug()

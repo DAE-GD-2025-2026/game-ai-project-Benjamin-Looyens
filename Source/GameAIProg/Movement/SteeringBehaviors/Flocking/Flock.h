@@ -54,7 +54,6 @@ private:
 #ifdef GAMEAI_USE_SPACE_PARTITIONING
 	std::unique_ptr<CellSpace> m_pPartitionedSpace{};
 	int NrOfCellsX{ 10 };
-	//TArray<FVector2D> OldPositions{};
 	TArray<int> m_PrevPosIndices{};
 #else // No space partitioning
 	TArray<ASteeringAgent*> Neighbors{};

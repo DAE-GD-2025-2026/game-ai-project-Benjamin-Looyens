@@ -62,10 +62,7 @@ void CellSpace::AddAgent(ASteeringAgent& Agent)
 }
 
 void CellSpace::UpdateAgentCell(ASteeringAgent& Agent, int& OldIndex_INOUT)
-//void CellSpace::UpdateAgentCell(ASteeringAgent& Agent, const FVector2D& OldPos)
 {
-	//const int oldIndex = PositionToIndex(OldPos);
-	
 	// HACK : incredibly stupid work around
 	// but the Tick -> Trimworld order cant be changed
 	const float appliedWidth = (SpaceWidth / 2);
@@ -99,9 +96,6 @@ void CellSpace::UpdateAgentCell(ASteeringAgent& Agent, int& OldIndex_INOUT)
 
 void CellSpace::RegisterNeighbors(ASteeringAgent& Agent, float QueryRadius)
 {
-	// TODO Register the neighbors for the provided agent
-	// TODO Only check the cells that are within the radius of the neighborhood
-
 	NrOfNeighbors = 0;
 
 	const FVector2D& pos = Agent.GetPosition();
@@ -131,8 +125,6 @@ void CellSpace::EmptyCells()
 
 void CellSpace::RenderCells() const
 {
-	// TODO Render the cells with the number of agents inside of it
-
 	for (const auto& cell : Cells) {
 		DrawRect(cell.BoundingBox);
 
